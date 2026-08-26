@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -19,7 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Backend\src\WildSeed.Domain\WildSeed.Domain.csproj" />
+    <ProjectReference Include="..\..\src\WildSeed.Domain\WildSeed.Domain.csproj" />
+    <ProjectReference Include="..\..\src\WildSeed.Simulation\WildSeed.Simulation.csproj" />
+    <ProjectReference Include="..\..\src\WildSeed.Api\WildSeed.Api.csproj" />
   </ItemGroup>
 
 </Project>

@@ -4,7 +4,12 @@
     <Project Path="src/WildSeed.Domain/WildSeed.Domain.csproj" />
     <Project Path="src/WildSeed.Simulation/WildSeed.Simulation.csproj" />
   </Folder>
-  <Project Path="../Backend.Tests/WildSeed.Architecture.Tests/WildSeed.Architecture.Tests.csproj" />
-  <Project Path="../Backend.Tests/WildSeed.Domain.Tests/WildSeed.Domain.Tests.csproj" />
-  <Project Path="../Backend.Tests/WildSeed.Simulation.Tests/WildSeed.Simulation.Tests.csproj" />
+  <Folder Name="/tests/">
+    <Project Path="tests/WildSeed.Architecture.Tests/WildSeed.Architecture.Tests.csproj" />
+    <Project Path="tests/WildSeed.Domain.Tests/WildSeed.Domain.Tests.csproj" />
+    <Project Path="tests/WildSeed.Simulation.Tests/WildSeed.Simulation.Tests.csproj" />
+  </Folder>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/WildSeed.Simulation.Benchmarks/WildSeed.Simulation.Benchmarks.csproj" />
+  </Folder>
 </Solution>

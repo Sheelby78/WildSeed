@@ -13,8 +13,11 @@ Wild Seed is a deterministic 2D ecosystem simulation. The backend is ASP.NET Cor
 
 ## Project Layout
 
-- @Backend/WildSeed.slnx contains production projects under `Backend/src/`: `WildSeed.Domain/`, `WildSeed.Simulation/`, and `WildSeed.Api/`.
-- `Backend.Tests/` mirrors the layers with `WildSeed.Domain.Tests/`, `WildSeed.Simulation.Tests/`, and `WildSeed.Architecture.Tests/`. Dependency rules live at @Backend.Tests/WildSeed.Architecture.Tests/DependencyRulesTests.cs.
+- @Backend/WildSeed.slnx organizes backend projects under `Backend/`:
+  - `src/`: `WildSeed.Domain/`, `WildSeed.Simulation/`, and `WildSeed.Api/`
+  - `tests/`: `WildSeed.Domain.Tests/`, `WildSeed.Simulation.Tests/`, and `WildSeed.Architecture.Tests/`
+  - `benchmarks/`: `WildSeed.Simulation.Benchmarks/`
+- Dependency rules live at @Backend/tests/WildSeed.Architecture.Tests/DependencyRulesTests.cs.
 - Organize `Frontend/src/` into `app/` for composition, `features/` for user-facing slices, `rendering/` for PixiJS, `transport/` for SignalR and DTO mapping, and `shared/` for feature-independent code. Shared code must not import from features.
 - Product decisions live in `context/foundation/`; workflow artifacts live in `context/changes/`.
 
@@ -30,4 +33,4 @@ Run from the repository root:
 - `npm --prefix Frontend run dev` — start Vite locally.
 - `npm --prefix Frontend run build` and `npm --prefix Frontend run lint` — required frontend checks.
 
-C# enables nullable references and implicit usings. Name tests after observable behavior; simulation changes require deterministic tests, and dependency changes must keep architecture tests green. TypeScript rejects unused locals, unused parameters, and switch fallthrough via @Frontend/tsconfig.app.json; use PascalCase component files, single-quoted imports, and no semicolons. No frontend test runner or CI exists yet. Git is not initialized, so commit conventions remain undefined.
+C# enables nullable references and implicit usings. Avoid adding comments to the code; code must be self-documenting, clean, and free of redundant comments or docstrings. Name tests after observable behavior; simulation changes require deterministic tests, and dependency changes must keep architecture tests green. TypeScript rejects unused locals, unused parameters, and switch fallthrough via @Frontend/tsconfig.app.json; use PascalCase component files, single-quoted imports, and no semicolons. No frontend test runner or CI exists yet. Git is not initialized, so commit conventions remain undefined.
