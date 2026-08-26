@@ -29,7 +29,7 @@ Wild Seed is an interactive 2D ecosystem simulation intended to feel like a livi
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
-| F-01 | determinism-performance-contract | (foundation) deterministic result equivalence and headless throughput can be measured before simulation behavior expands | — | PRD §Non-Functional Requirements | ready |
+| F-01 | determinism-performance-contract | (foundation) deterministic result equivalence and headless throughput can be measured before simulation behavior expands | — | PRD §Non-Functional Requirements | done |
 | S-01 | configurable-procedural-world | visitor can configure world parameters and see a cohesive rendered procedural world | F-01 | US-01, FR-001, FR-002, FR-009 | proposed |
 | S-02 | deterministic-survival-loop | visitor can run, pause, accelerate, and observe a deterministic needs-driven survival loop | S-01 | US-01, FR-003, FR-004, FR-005, FR-008, FR-009 | proposed |
 | S-03 | predator-prey-dynamics | visitor can observe herbivores feeding and predators hunting while prey flee | S-02 | US-01, FR-006, FR-009 | proposed |
@@ -62,7 +62,7 @@ What's already in place in the codebase as of `2026-08-26` (auto-researched + us
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Without a minimal repeatability and throughput measurement contract, learning from later mechanics could be invalidated by silent nondeterminism or rendering-coupled performance.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -179,4 +179,5 @@ What's already in place in the codebase as of `2026-08-26` (auto-researched + us
 - **Treating limited God Mode as a core completion requirement** — Why parked: PRD §Non-Goals keeps the limited intervention slice optional.
 
 ## Done
-
+ 
+- **F-01: (foundation) deterministic result equivalence and headless throughput can be measured before simulation behavior expands** — Archived 2026-08-26 → `context/archive/2026-08-26-determinism-performance-contract/`. Lesson: —.
