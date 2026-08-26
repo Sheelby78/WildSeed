@@ -17,11 +17,11 @@ Executes headless performance benchmarks for Wild Seed simulation workloads. Val
 ### Smoke Run (Dry Job, non-authoritative)
 
 ```bash
-dotnet run --project Backend.Benchmarks/WildSeed.Simulation.Benchmarks/WildSeed.Simulation.Benchmarks.csproj --configuration Release -- --filter *SyntheticPopulation5000V1* --job Dry --artifacts artifacts/benchmarks/smoke
+dotnet run --project Backend/benchmarks/WildSeed.Simulation.Benchmarks/WildSeed.Simulation.Benchmarks.csproj --configuration Release -- --filter *SyntheticPopulation5000V1* --job Dry --artifacts artifacts/benchmarks/smoke
 ```
 
 ### Full Acceptance Benchmark
 
 ```bash
-dotnet run --project Backend.Benchmarks/WildSeed.Simulation.Benchmarks/WildSeed.Simulation.Benchmarks.csproj --configuration Release -- --filter *SyntheticPopulation5000V1* --artifacts artifacts/benchmarks/acceptance
+dotnet run --project Backend/benchmarks/WildSeed.Simulation.Benchmarks/WildSeed.Simulation.Benchmarks.csproj --configuration Release -- --filter *SyntheticPopulation5000V1* --artifacts artifacts/benchmarks/acceptance
 ```
