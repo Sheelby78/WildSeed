@@ -52,3 +52,7 @@ pnpm-debug.log*
 ## OS / Misc
 .DS_Store
 Thumbs.db
+
+## Benchmarks
+artifacts/
+BenchmarkDotNet.Artifacts/
