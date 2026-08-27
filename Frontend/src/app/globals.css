@@ -1,17 +1,38 @@
+@font-face {
+  font-family: Manrope;
+  src: url('/fonts/manrope-variable.ttf') format('truetype');
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/fonts/space-grotesk-variable.ttf') format('truetype');
+  font-weight: 300 700;
+  font-display: swap;
+}
+
 :root {
-  --bg-app: #070b09;
-  --bg-sidebar: #0d1210;
-  --bg-input: #171e1a;
-  --border-color: rgba(195, 218, 203, 0.12);
-  --border-strong: rgba(195, 218, 203, 0.2);
-  --text-primary: #eef3ef;
-  --text-secondary: #a4afa7;
-  --text-muted: #6f7c73;
-  --accent: #a7d46f;
-  --accent-bright: #bce77f;
-  --danger: #f1957e;
-  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-  --font-sans: Inter, 'Aptos', 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+  --bg-app: #0b1119;
+  --bg-sidebar: #101923;
+  --bg-panel: #14202c;
+  --bg-input: #1c2a38;
+  --border-color: #ffffff0d;
+  --border-strong: #ffffff1a;
+  --text-primary: #f0f7fc;
+  --text-secondary: #b9cbda;
+  --text-muted: #8fa8bc;
+  --accent: #38c9ff;
+  --accent-bright: #8be0ff;
+  --accent-surface: #38c9ff12;
+  --danger: #ff7485;
+  --herbivore: #ffe077;
+  --carnivore: #ff7485;
+  --info: #58d8ed;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-sans: Manrope, 'Segoe UI', sans-serif;
+  --font-mono: 'Space Grotesk', Consolas, monospace;
 }
 
 * {
@@ -20,44 +41,135 @@
   padding: 0;
 }
 
-html,
-body,
-#root {
+html, body, #root {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
+}
+
+body {
   background: var(--bg-app);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-synthesis: none;
+  font-size: 12px;
+  -webkit-font-smoothing: antialiased;
 }
 
-button,
-input,
-select {
+button, input, select {
   font: inherit;
 }
 
-button,
-select {
+button {
+  cursor: pointer;
+}
+
+button, select {
   -webkit-tap-highlight-color: transparent;
 }
 
-@media (max-width: 760px) {
-  html,
-  body,
-  #root {
-    overflow: auto;
-  }
+button {
+  transition: background 160ms, border-color 160ms, color 160ms, box-shadow 160ms;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+button svg {
+  flex-shrink: 0;
+}
+
+::selection {
+  color: white;
+  background: #087cae;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #344c60 transparent;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.text-accent {
+  color: var(--accent-bright);
+}
+
+.text-herbivore {
+  color: var(--herbivore);
+}
+
+.text-carnivore {
+  color: var(--carnivore);
+}
+
+.text-info {
+  color: var(--info);
+}
+
+.text-vision {
+  color: var(--accent);
+}
+
+.eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.icon-button:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border-color: #ffffff35;
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 17px;
+  background: var(--accent);
+  border: 1px solid #8be0ff66;
+  border-radius: 8px;
+  color: #05263a;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 2px 0 #0002, inset 0 1px 0 #ffffff25;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #70dcff;
+  box-shadow: 0 0 22px #38c9ff20;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
+    animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: .01ms !important;
   }
 }

@@ -9,10 +9,14 @@ export class CameraController {
   private cameraStartX = 0
   private cameraStartY = 0
   private zoom = 1.0
+  private framing: 'contain' | 'cover' | null = null
+  private worldSize = { width: 0, height: 0 }
+  private viewSize = { width: 0, height: 0 }
 
   private onPointerDown = (e: PointerEvent) => {
     if (e.button !== 0 && e.button !== 1) return
     this.isDragging = true
+    this.framing = null
     this.dragStartX = e.clientX
     this.dragStartY = e.clientY
     if (this.world) {
@@ -42,9 +46,16 @@ export class CameraController {
     const mouseY = e.clientY - rect.top
 
     const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85
-    const newZoom = Math.max(0.1, Math.min(6.0, this.zoom * zoomFactor))
+    this.zoomBy(zoomFactor, mouseX, mouseY)
+  }
+
+  zoomBy(factor: number, mouseX: number, mouseY: number): void {
+    if (!this.world) return
+    const newZoom = Math.max(0.1, Math.min(6.0, this.zoom * factor))
 
     if (newZoom === this.zoom) return
+
+    this.framing = null
 
     const worldMouseX = (mouseX - this.world.position.x) / this.zoom
     const worldMouseY = (mouseY - this.world.position.y) / this.zoom
@@ -54,6 +65,17 @@ export class CameraController {
 
     this.world.position.x = mouseX - worldMouseX * this.zoom
     this.world.position.y = mouseY - worldMouseY * this.zoom
+  }
+
+  resize(width: number, height: number): void {
+    if (!this.world) return
+    if (this.framing) {
+      this.reset(this.worldSize.width, this.worldSize.height, width, height, this.framing)
+      return
+    }
+    this.world.position.x += (width - this.viewSize.width) / 2
+    this.world.position.y += (height - this.viewSize.height) / 2
+    this.viewSize = { width, height }
   }
 
   attach(worldContainer: Container, canvas: HTMLCanvasElement): void {
@@ -67,11 +89,14 @@ export class CameraController {
     canvas.addEventListener('wheel', this.onWheel, { passive: false })
   }
 
-  reset(worldWidth: number, worldHeight: number, viewWidth: number, viewHeight: number): void {
+  reset(worldWidth: number, worldHeight: number, viewWidth: number, viewHeight: number, framing: 'contain' | 'cover' = 'contain'): void {
     if (!this.world) return
+    this.framing = framing
+    this.worldSize = { width: worldWidth, height: worldHeight }
+    this.viewSize = { width: viewWidth, height: viewHeight }
     const scaleX = viewWidth / worldWidth
     const scaleY = viewHeight / worldHeight
-    this.zoom = Math.max(0.1, Math.min(scaleX, scaleY, 2.0)) * 0.95
+    this.zoom = framing === 'cover' ? Math.max(scaleX, scaleY) : Math.min(scaleX, scaleY)
     this.world.scale.set(this.zoom)
     this.world.position.x = (viewWidth - worldWidth * this.zoom) / 2
     this.world.position.y = (viewHeight - worldHeight * this.zoom) / 2
