@@ -7,20 +7,20 @@ const TILE_SIZE = 8
 function getTerrainColor(terrain: TileData['terrain'], vegetation: number): number {
   switch (terrain) {
     case 'DeepWater':
-      return 0x162a45
+      return 0x12659c
     case 'ShallowWater':
-      return 0x2563eb
+      return 0x27abc8
     case 'Sand':
-      return 0xd97706
+      return 0xf3d58c
     case 'Grass': {
-      const g = Math.floor(130 + vegetation * 70)
-      const r = Math.floor(60 + (1 - vegetation) * 40)
-      return (r << 16) | (g << 8) | 40
+      const g = Math.floor(176 + vegetation * 30)
+      const r = Math.floor(151 - vegetation * 30)
+      return (r << 16) | (g << 8) | 82
     }
     case 'Forest': {
-      const g = Math.floor(90 + vegetation * 50)
-      const r = Math.floor(25 + (1 - vegetation) * 20)
-      return (r << 16) | (g << 8) | 25
+      const g = Math.floor(124 + vegetation * 30)
+      const r = Math.floor(65 - vegetation * 20)
+      return (r << 16) | (g << 8) | 80
     }
   }
 }
@@ -45,6 +45,7 @@ export class WorldRenderer {
   private containerElement: HTMLElement | null = null
   private isDestroyed = false
   private organismsMap = new Map<string, RenderOrganism>()
+  private worldSize = { width: 0, height: 0 }
 
   async init(container: HTMLElement): Promise<void> {
     this.containerElement = container
@@ -57,7 +58,7 @@ export class WorldRenderer {
     await app.init({
       width: Math.max(100, initialWidth),
       height: Math.max(100, initialHeight),
-      backgroundColor: 0x090d16,
+      backgroundAlpha: 0,
       antialias: false,
       resolution: window.devicePixelRatio || 1,
       autoDensity: true,
@@ -130,6 +131,7 @@ export class WorldRenderer {
 
     const worldWidthPx = snapshot.width * TILE_SIZE
     const worldHeightPx = snapshot.height * TILE_SIZE
+    this.worldSize = { width: worldWidthPx, height: worldHeightPx }
     const viewWidth = this.app.screen.width
     const viewHeight = this.app.screen.height
 
@@ -174,7 +176,7 @@ export class WorldRenderer {
   }
 
   private renderFrame(deltaTime: number): void {
-    if (!this.worldContainer || this.isDestroyed || this.organismsMap.size === 0) return
+    if (!this.worldContainer || this.isDestroyed) return
 
     if (!this.organismGraphics) {
       this.organismGraphics = new Graphics()
@@ -207,7 +209,7 @@ export class WorldRenderer {
       }
     }
     if (hasFlee) {
-      g.stroke({ color: 0x38bdf8, width: 1.5, alpha: 0.85 })
+      g.stroke({ color: 0x58d8ed, width: 1.5, alpha: 0.85 })
     }
 
     for (const organism of this.organismsMap.values()) {
@@ -219,7 +221,7 @@ export class WorldRenderer {
       }
     }
     if (hasHunt) {
-      g.stroke({ color: 0xf97316, width: 1.5, alpha: 0.9 })
+      g.stroke({ color: 0xffb349, width: 1.5, alpha: 0.9 })
     }
 
     for (const organism of this.organismsMap.values()) {
@@ -231,7 +233,7 @@ export class WorldRenderer {
       }
     }
     if (hasMate) {
-      g.stroke({ color: 0xec4899, width: 1.5, alpha: 0.9 })
+      g.stroke({ color: 0xff9b62, width: 1.5, alpha: 0.9 })
     }
 
     // Herbivore bodies
@@ -243,7 +245,8 @@ export class WorldRenderer {
       }
     }
     if (hasHerb) {
-      g.fill({ color: 0xfacc15 })
+      g.fill({ color: 0xffe077 })
+      g.stroke({ color: 0x49391e, width: 1, alignment: 0 })
     }
 
     // Carnivore bodies
@@ -255,7 +258,8 @@ export class WorldRenderer {
       }
     }
     if (hasCarn) {
-      g.fill({ color: 0xef4444 })
+      g.fill({ color: 0xff7485 })
+      g.stroke({ color: 0x49391e, width: 1, alignment: 0 })
     }
   }
 
@@ -264,6 +268,7 @@ export class WorldRenderer {
       const width = this.containerElement.clientWidth
       const height = this.containerElement.clientHeight
       if (width > 0 && height > 0) {
+        this.camera.resize(width, height)
         this.app.renderer.resize(width, height)
       }
     }
@@ -271,6 +276,21 @@ export class WorldRenderer {
 
   getFPS(): number {
     return this.app ? Math.round(this.app.ticker.FPS) : 0
+  }
+
+  fitWorld(): void {
+    if (!this.app || !this.worldSize.width || this.isDestroyed) return
+    this.camera.reset(this.worldSize.width, this.worldSize.height, this.app.screen.width, this.app.screen.height)
+  }
+
+  fillWorld(): void {
+    if (!this.app || !this.worldSize.width || this.isDestroyed) return
+    this.camera.reset(this.worldSize.width, this.worldSize.height, this.app.screen.width, this.app.screen.height, 'cover')
+  }
+
+  zoomBy(factor: number): void {
+    if (!this.app || this.isDestroyed) return
+    this.camera.zoomBy(factor, this.app.screen.width / 2, this.app.screen.height / 2)
   }
 
   destroy(): void {

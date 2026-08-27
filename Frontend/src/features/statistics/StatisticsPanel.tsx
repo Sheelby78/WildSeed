@@ -1,52 +1,46 @@
 import { useMemo, useState } from 'react'
-import type { EcosystemStatisticsSummary, SimulationHistoryPoint } from '@/transport/WorldApi'
+import type { EcosystemStatisticsSummary, SimulationHistoryPoint, SimulationSnapshot } from '@/transport/WorldApi'
+import { Icon } from '@/shared/Icon'
 import './StatisticsPanel.css'
 
 export interface StatisticsPanelProps {
   statistics?: EcosystemStatisticsSummary
   history?: SimulationHistoryPoint[]
+  telemetry?: SimulationSnapshot
   isOpen: boolean
   onToggle: () => void
 }
 
-type TabType = 'overview' | 'population' | 'genetics' | 'mortality'
+type TabType = 'overview' | 'population' | 'genetics' | 'mortality' | 'activity'
 
 const CAUSE_COLORS: Record<string, string> = {
-  Starvation: '#f97316',
-  Dehydration: '#06b6d4',
-  OldAge: '#a855f7',
-  Predation: '#ef4444',
-  Combat: '#ec4899',
+  Starvation: '#ffb349',
+  Dehydration: '#58d8ed',
+  OldAge: '#f6b84d',
+  Predation: '#ff7485',
+  Combat: '#ff9b62',
 }
 
-export function StatisticsPanel({ statistics, history = [], isOpen, onToggle }: StatisticsPanelProps) {
+export function StatisticsPanel({ statistics, history = [], telemetry, isOpen, onToggle }: StatisticsPanelProps) {
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [selectedTrait, setSelectedTrait] = useState<'speed' | 'size' | 'vision'>('speed')
   const [hoverIndex, setHoverIndex] = useState<number | null>(null)
 
   const hoveredPoint = hoverIndex !== null && history[hoverIndex] ? history[hoverIndex] : null
 
-  return (
-    <aside className={`statistics-panel ${isOpen ? 'is-open' : 'is-closed'}`} aria-label="Ecosystem Analytics Panel">
-      <button
-        type="button"
-        className="statistics-toggle-handle"
-        onClick={onToggle}
-        title={isOpen ? 'Collapse Analytics Panel' : 'Expand Analytics Panel'}
-      >
-        <span className="handle-icon">{isOpen ? '▶' : '◀'}</span>
-        <span className="handle-label">Analytics</span>
-      </button>
+  if (!isOpen) return null
 
+  return (
+    <aside id="ecosystem-analytics" className="statistics-panel" aria-label="Ecosystem analytics">
       {isOpen && (
         <div className="statistics-content">
           <header className="statistics-header">
             <div>
-              <span className="statistics-eyebrow">Demographic telemetry</span>
-              <h3>Ecosystem Analytics</h3>
+              <span className="statistics-eyebrow">THE BIGGER PICTURE</span>
+              <h3>Ecosystem insights</h3>
             </div>
-            <button type="button" className="close-btn" onClick={onToggle} aria-label="Close Analytics">
-              ✕
+            <button type="button" className="icon-button" onClick={onToggle} aria-label="Close analytics">
+              <Icon name="close" size={14} />
             </button>
           </header>
 
@@ -54,6 +48,7 @@ export function StatisticsPanel({ statistics, history = [], isOpen, onToggle }: 
             <button
               type="button"
               className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+              aria-pressed={activeTab === 'overview'}
               onClick={() => { setActiveTab('overview'); setHoverIndex(null) }}
             >
               Overview
@@ -61,6 +56,7 @@ export function StatisticsPanel({ statistics, history = [], isOpen, onToggle }: 
             <button
               type="button"
               className={`tab-btn ${activeTab === 'population' ? 'active' : ''}`}
+              aria-pressed={activeTab === 'population'}
               onClick={() => { setActiveTab('population'); setHoverIndex(null) }}
             >
               Population
@@ -68,6 +64,7 @@ export function StatisticsPanel({ statistics, history = [], isOpen, onToggle }: 
             <button
               type="button"
               className={`tab-btn ${activeTab === 'genetics' ? 'active' : ''}`}
+              aria-pressed={activeTab === 'genetics'}
               onClick={() => { setActiveTab('genetics'); setHoverIndex(null) }}
             >
               Genetics
@@ -75,15 +72,21 @@ export function StatisticsPanel({ statistics, history = [], isOpen, onToggle }: 
             <button
               type="button"
               className={`tab-btn ${activeTab === 'mortality' ? 'active' : ''}`}
+              aria-pressed={activeTab === 'mortality'}
               onClick={() => { setActiveTab('mortality'); setHoverIndex(null) }}
             >
               Mortality
             </button>
+            <button type="button" className={`tab-btn ${activeTab === 'activity' ? 'active' : ''}`} aria-pressed={activeTab === 'activity'} onClick={() => { setActiveTab('activity'); setHoverIndex(null) }}>Activity</button>
           </nav>
 
           <div className="tab-body">
             {activeTab === 'overview' && (
               <div className="overview-tab">
+                <div className="overview-population">
+                  <div className="chart-header"><h4>Population balance</h4><span className="chart-meta">{history.length} samples</span></div>
+                  {history.length > 0 ? <PopulationSvgChart history={history} hoverIndex={hoverIndex} onHoverIndex={setHoverIndex} /> : <div className="empty-chart">Start the simulation to see population trends.</div>}
+                </div>
                 <div className="kpi-grid">
                   <div className="kpi-card">
                     <span className="kpi-label">Total Population</span>
@@ -95,7 +98,7 @@ export function StatisticsPanel({ statistics, history = [], isOpen, onToggle }: 
                   </div>
 
                   <div className="kpi-card">
-                    <span className="kpi-label">Natality & Mortality</span>
+                    <span className="kpi-label">Life cycle</span>
                     <div className="kpi-dual">
                       <div>
                         <span className="kpi-sublabel">Births</span>
@@ -132,13 +135,13 @@ export function StatisticsPanel({ statistics, history = [], isOpen, onToggle }: 
                 </div>
 
                 <div className="section-card">
-                  <h4 className="card-heading">Species Trait Baseline</h4>
+                  <h4 className="card-heading">Species traits</h4>
                   <div className="traits-comparison-table">
                     <div className="traits-row traits-header">
                       <span>Trait</span>
-                      <span className="text-herbivore">Herbivores</span>
-                      <span className="text-carnivore">Carnivores</span>
-                      <span>Overall</span>
+                      <span className="text-herbivore">Herb.</span>
+                      <span className="text-carnivore">Carn.</span>
+                      <span>All</span>
                     </div>
                     <div className="traits-row">
                       <span className="trait-name">Speed</span>
@@ -199,6 +202,7 @@ export function StatisticsPanel({ statistics, history = [], isOpen, onToggle }: 
                     <button
                       type="button"
                       className={`trait-chip ${selectedTrait === 'speed' ? 'active' : ''}`}
+                      aria-pressed={selectedTrait === 'speed'}
                       onClick={() => setSelectedTrait('speed')}
                     >
                       Speed
@@ -206,6 +210,7 @@ export function StatisticsPanel({ statistics, history = [], isOpen, onToggle }: 
                     <button
                       type="button"
                       className={`trait-chip ${selectedTrait === 'size' ? 'active' : ''}`}
+                      aria-pressed={selectedTrait === 'size'}
                       onClick={() => setSelectedTrait('size')}
                     >
                       Size
@@ -213,6 +218,7 @@ export function StatisticsPanel({ statistics, history = [], isOpen, onToggle }: 
                     <button
                       type="button"
                       className={`trait-chip ${selectedTrait === 'vision' ? 'active' : ''}`}
+                      aria-pressed={selectedTrait === 'vision'}
                       onClick={() => setSelectedTrait('vision')}
                     >
                       Vision
@@ -266,6 +272,16 @@ export function StatisticsPanel({ statistics, history = [], isOpen, onToggle }: 
                 </div>
               </div>
             )}
+            {activeTab === 'activity' && <div className="activity-tab">
+              <div className="chart-header"><h4>Active behaviors</h4><span className="chart-meta">1s average</span></div>
+              <p className="insight-description">What the living population is doing right now.</p>
+              <div className="activity-list">{['Explore', 'SeekFood', 'Eat', 'SeekWater', 'Drink', 'Rest', 'Hunt', 'Attack', 'Flee', 'Mate'].map(action => {
+                const count = telemetry?.actions[action] ?? 0
+                const total = Math.max(1, Object.values(telemetry?.actions ?? {}).reduce((sum, value) => sum + value, 0))
+                return <div className="activity-row" key={action}><span>{action.replace(/([a-z])([A-Z])/g, '$1 $2')}</span><div className="activity-track"><i style={{ width: `${count / total * 100}%` }} /></div><strong>{count}</strong></div>
+              })}</div>
+              <div className="section-card"><h4 className="card-heading">Deaths by cause</h4>{['Starvation', 'Dehydration', 'OldAge', 'Predation'].map(cause => <div className="death-row" key={cause}><span>{cause === 'OldAge' ? 'Old age' : cause}</span><strong>{telemetry?.deaths[cause] ?? 0}</strong></div>)}</div>
+            </div>}
           </div>
         </div>
       )}
@@ -335,7 +351,7 @@ function PopulationSvgChart({
         width="100%"
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="native-chart-svg"
+        className="native-chart-svg" role="img" aria-label="Historical simulation chart" preserveAspectRatio="none"
         onMouseLeave={() => onHoverIndex(null)}
         onMouseMove={e => {
           const rect = e.currentTarget.getBoundingClientRect()
@@ -345,22 +361,21 @@ function PopulationSvgChart({
           onHoverIndex(Math.max(0, Math.min(history.length - 1, idx)))
         }}
       >
+        <title>Population over simulation ticks</title>
         <defs>
           <linearGradient id="gradTotal" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.0" />
+            <stop offset="0%" stopColor="#38c9ff" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#38c9ff" stopOpacity="0.0" />
           </linearGradient>
           <linearGradient id="gradHerb" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#facc15" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#facc15" stopOpacity="0.0" />
+            <stop offset="0%" stopColor="#ffe077" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#ffe077" stopOpacity="0.0" />
           </linearGradient>
           <linearGradient id="gradCarn" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#ef4444" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#ef4444" stopOpacity="0.0" />
+            <stop offset="0%" stopColor="#ff7485" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#ff7485" stopOpacity="0.0" />
           </linearGradient>
         </defs>
-
-        {/* Grid lines */}
         {[0, 0.25, 0.5, 0.75, 1].map(pct => {
           const y = padding.top + innerHeight * (1 - pct)
           const val = Math.round(maxVal * pct)
@@ -378,35 +393,27 @@ function PopulationSvgChart({
                 x={padding.left - 6}
                 y={y + 3}
                 textAnchor="end"
-                fill="#64748b"
+                fill="#8fa8bc"
                 fontSize="9"
-                fontFamily="monospace"
+                fontFamily="Space Grotesk, monospace"
               >
                 {val}
               </text>
             </g>
           )
         })}
-
-        {/* X Axis labels */}
-        <text x={padding.left} y={height - 6} fill="#64748b" fontSize="9" fontFamily="monospace">
+        <text x={padding.left} y={height - 6} fill="#8fa8bc" fontSize="9" fontFamily="Space Grotesk, monospace">
           T:{firstTick}
         </text>
-        <text x={padding.left + innerWidth} y={height - 6} textAnchor="end" fill="#64748b" fontSize="9" fontFamily="monospace">
+        <text x={padding.left + innerWidth} y={height - 6} textAnchor="end" fill="#8fa8bc" fontSize="9" fontFamily="Space Grotesk, monospace">
           T:{lastTick}
         </text>
-
-        {/* Areas */}
         <path d={makeAreaPath(p => p.yTotal)} fill="url(#gradTotal)" />
         <path d={makeAreaPath(p => p.yHerb)} fill="url(#gradHerb)" />
         <path d={makeAreaPath(p => p.yCarn)} fill="url(#gradCarn)" />
-
-        {/* Lines */}
-        <path d={makeLinePath(p => p.yTotal)} fill="none" stroke="#38bdf8" strokeWidth="1.5" />
-        <path d={makeLinePath(p => p.yHerb)} fill="none" stroke="#facc15" strokeWidth="1.5" />
-        <path d={makeLinePath(p => p.yCarn)} fill="none" stroke="#ef4444" strokeWidth="1.5" />
-
-        {/* Hover crosshair */}
+        <path d={makeLinePath(p => p.yTotal)} fill="none" stroke="#38c9ff" strokeWidth="1.5" />
+        <path d={makeLinePath(p => p.yHerb)} fill="none" stroke="#ffe077" strokeWidth="1.5" />
+        <path d={makeLinePath(p => p.yCarn)} fill="none" stroke="#ff7485" strokeWidth="1.5" />
         {hoverIndex !== null && points[hoverIndex] && (
           <g>
             <line
@@ -418,16 +425,16 @@ function PopulationSvgChart({
               strokeWidth="1"
               strokeDasharray="2,2"
             />
-            <circle cx={points[hoverIndex].x} cy={points[hoverIndex].yTotal} r="3" fill="#38bdf8" />
-            <circle cx={points[hoverIndex].x} cy={points[hoverIndex].yHerb} r="3" fill="#facc15" />
-            <circle cx={points[hoverIndex].x} cy={points[hoverIndex].yCarn} r="3" fill="#ef4444" />
+            <circle cx={points[hoverIndex].x} cy={points[hoverIndex].yTotal} r="3" fill="#38c9ff" />
+            <circle cx={points[hoverIndex].x} cy={points[hoverIndex].yHerb} r="3" fill="#ffe077" />
+            <circle cx={points[hoverIndex].x} cy={points[hoverIndex].yCarn} r="3" fill="#ff7485" />
           </g>
         )}
       </svg>
       <div className="chart-legend">
-        <span className="legend-chip"><i style={{ background: '#38bdf8' }} /> Total</span>
-        <span className="legend-chip"><i style={{ background: '#facc15' }} /> Herbivores</span>
-        <span className="legend-chip"><i style={{ background: '#ef4444' }} /> Carnivores</span>
+        <span className="legend-chip"><i style={{ background: '#38c9ff' }} /> Total</span>
+        <span className="legend-chip"><i style={{ background: '#ffe077' }} /> Herbivores</span>
+        <span className="legend-chip"><i style={{ background: '#ff7485' }} /> Carnivores</span>
       </div>
     </div>
   )
@@ -487,7 +494,7 @@ function GeneticsSvgChart({
         width="100%"
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="native-chart-svg"
+        className="native-chart-svg" role="img" aria-label="Historical simulation chart" preserveAspectRatio="none"
         onMouseLeave={() => onHoverIndex(null)}
         onMouseMove={e => {
           const rect = e.currentTarget.getBoundingClientRect()
@@ -497,7 +504,6 @@ function GeneticsSvgChart({
           onHoverIndex(Math.max(0, Math.min(history.length - 1, idx)))
         }}
       >
-        {/* Grid lines */}
         {[0, 0.33, 0.66, 1].map(pct => {
           const y = padding.top + innerHeight * (1 - pct)
           const val = (maxVal * pct).toFixed(1)
@@ -515,29 +521,23 @@ function GeneticsSvgChart({
                 x={padding.left - 6}
                 y={y + 3}
                 textAnchor="end"
-                fill="#64748b"
+                fill="#8fa8bc"
                 fontSize="9"
-                fontFamily="monospace"
+                fontFamily="Space Grotesk, monospace"
               >
                 {val}
               </text>
             </g>
           )
         })}
-
-        {/* X Axis labels */}
-        <text x={padding.left} y={height - 6} fill="#64748b" fontSize="9" fontFamily="monospace">
+        <text x={padding.left} y={height - 6} fill="#8fa8bc" fontSize="9" fontFamily="Space Grotesk, monospace">
           T:{firstTick}
         </text>
-        <text x={padding.left + innerWidth} y={height - 6} textAnchor="end" fill="#64748b" fontSize="9" fontFamily="monospace">
+        <text x={padding.left + innerWidth} y={height - 6} textAnchor="end" fill="#8fa8bc" fontSize="9" fontFamily="Space Grotesk, monospace">
           T:{lastTick}
         </text>
-
-        {/* Lines */}
-        <path d={makeLinePath(p => p.yHerb)} fill="none" stroke="#facc15" strokeWidth="2" />
-        <path d={makeLinePath(p => p.yCarn)} fill="none" stroke="#ef4444" strokeWidth="2" />
-
-        {/* Hover crosshair */}
+        <path d={makeLinePath(p => p.yHerb)} fill="none" stroke="#ffe077" strokeWidth="2" />
+        <path d={makeLinePath(p => p.yCarn)} fill="none" stroke="#ff7485" strokeWidth="2" />
         {hoverIndex !== null && points[hoverIndex] && (
           <g>
             <line
@@ -549,14 +549,14 @@ function GeneticsSvgChart({
               strokeWidth="1"
               strokeDasharray="2,2"
             />
-            <circle cx={points[hoverIndex].x} cy={points[hoverIndex].yHerb} r="3.5" fill="#facc15" />
-            <circle cx={points[hoverIndex].x} cy={points[hoverIndex].yCarn} r="3.5" fill="#ef4444" />
+            <circle cx={points[hoverIndex].x} cy={points[hoverIndex].yHerb} r="3.5" fill="#ffe077" />
+            <circle cx={points[hoverIndex].x} cy={points[hoverIndex].yCarn} r="3.5" fill="#ff7485" />
           </g>
         )}
       </svg>
       <div className="chart-legend">
-        <span className="legend-chip"><i style={{ background: '#facc15' }} /> Herbivore {trait}</span>
-        <span className="legend-chip"><i style={{ background: '#ef4444' }} /> Carnivore {trait}</span>
+        <span className="legend-chip"><i style={{ background: '#ffe077' }} /> Herbivore {trait}</span>
+        <span className="legend-chip"><i style={{ background: '#ff7485' }} /> Carnivore {trait}</span>
       </div>
     </div>
   )
