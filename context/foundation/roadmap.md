@@ -32,7 +32,7 @@ Wild Seed is an interactive 2D ecosystem simulation intended to feel like a livi
 | F-01 | determinism-performance-contract | (foundation) deterministic result equivalence and headless throughput can be measured before simulation behavior expands | — | PRD §Non-Functional Requirements | done |
 | S-01 | configurable-procedural-world | visitor can configure world parameters and see a cohesive rendered procedural world | F-01 | US-01, FR-001, FR-002, FR-009 | done |
 | S-02 | deterministic-survival-loop | visitor can run, pause, accelerate, and observe a deterministic needs-driven survival loop | S-01 | US-01, FR-003, FR-004, FR-005, FR-008, FR-009 | done |
-| S-03 | predator-prey-dynamics | visitor can observe herbivores feeding and predators hunting while prey flee | S-02 | US-01, FR-006, FR-009 | proposed |
+| S-03 | predator-prey-dynamics | visitor can observe herbivores feeding and predators hunting while prey flee | S-02 | US-01, FR-006, FR-009 | done |
 | S-04 | inherited-evolution | visitor can observe reproduction, inherited genomes, mutation, and trait trade-offs | S-02 | US-01, FR-007, FR-009 | proposed |
 | S-05 | ecosystem-statistics | visitor can follow population, birth, death, lifespan, and average genome-trait statistics over time | S-03, S-04 | US-01, FR-010 | proposed |
 | S-06 | organism-inspection | visitor can select an organism and inspect its state, action, genome, parents, and children | S-04 | US-01, FR-011 | proposed |
@@ -100,7 +100,7 @@ What's already in place in the codebase as of `2026-08-26` (auto-researched + us
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Adding pursuit only after the survival loop works keeps combat behavior attributable while delivering a strong visual demonstration.
-- **Status:** proposed
+- **Status:** done
 
 ### S-04: Observe inherited evolution
 
@@ -157,11 +157,11 @@ What's already in place in the codebase as of `2026-08-26` (auto-researched + us
 | F-01 | determinism-performance-contract | Establish deterministic and performance verification contract | done | Archived |
 | S-01 | configurable-procedural-world | Let visitors configure and generate a procedural world | done | Implemented & reviewed |
 | S-02 | deterministic-survival-loop | Let visitors run and observe a deterministic survival loop | done | Implemented & reviewed |
-| S-03 | predator-prey-dynamics | Let visitors observe predator-prey dynamics | yes | Run `/plan predator-prey-dynamics` |
+| S-03 | predator-prey-dynamics | Let visitors observe predator-prey dynamics | done | Implemented & reviewed |
 | S-04 | inherited-evolution | Let visitors observe inherited evolution | yes | Run `/plan inherited-evolution` |
-| S-05 | ecosystem-statistics | Let visitors follow ecosystem statistics | no | Requires S-03 and S-04 |
+| S-05 | ecosystem-statistics | Let visitors follow ecosystem statistics | no | Requires S-04 |
 | S-06 | organism-inspection | Let visitors inspect organisms and family relationships | no | Requires S-04 |
-| S-07 | limited-god-mode | Let visitors intervene through limited God Mode | no | Requires S-03 and S-04 |
+| S-07 | limited-god-mode | Let visitors intervene through limited God Mode | no | Requires S-04 |
 
 ## Open Roadmap Questions
 
@@ -183,3 +183,4 @@ What's already in place in the codebase as of `2026-08-26` (auto-researched + us
 - **F-01: (foundation) deterministic result equivalence and headless throughput can be measured before simulation behavior expands** — Archived 2026-08-26 → `context/archive/2026-08-26-determinism-performance-contract/`. Lesson: —.
 - **S-01: visitor can configure world parameters and see a cohesive rendered procedural world** — Implemented 2026-08-27 → `context/changes/configurable-procedural-world/`. Lesson: —.
 - **S-02: visitor can run, pause, accelerate, and observe a deterministic needs-driven survival loop** — Implemented 2026-08-27 → `context/changes/deterministic-survival-loop/`. Lesson: —.
+- **S-03: visitor can observe herbivores feeding and predators hunting while prey flee** — Implemented 2026-08-27 → `context/changes/predator-prey-dynamics/`. Lesson: —.
