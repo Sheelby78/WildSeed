@@ -119,16 +119,17 @@ export class WorldRenderer {
 
   updateOrganisms(organisms: RuntimeOrganism[]): void {
     if (!this.worldContainer || this.isDestroyed) return
-    if (this.organismGraphics) {
-      this.worldContainer.removeChild(this.organismGraphics)
-      this.organismGraphics.destroy()
+    if (!this.organismGraphics) {
+      this.organismGraphics = new Graphics()
+      this.worldContainer.addChild(this.organismGraphics)
     }
-    this.organismGraphics = new Graphics()
+    this.organismGraphics.clear()
+    const orgRadius = Math.max(2, TILE_SIZE * 0.25)
     for (const organism of organisms) {
-      this.organismGraphics.circle(organism.x * TILE_SIZE, organism.y * TILE_SIZE, Math.max(2, TILE_SIZE * 0.25))
-      this.organismGraphics.fill({ color: organism.species === 'Herbivore' ? 0xfacc15 : 0xef4444 })
+      const color = organism.species === 'Herbivore' ? 0xfacc15 : 0xef4444
+      this.organismGraphics.circle(organism.x * TILE_SIZE, organism.y * TILE_SIZE, orgRadius)
+      this.organismGraphics.fill({ color })
     }
-    this.worldContainer.addChild(this.organismGraphics)
   }
 
   resize(): void {

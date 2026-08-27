@@ -42,10 +42,12 @@ public sealed class PerceptionService
     private static bool IsCloser(float distance, float currentDistance, (int X, int Y) candidate, (int X, int Y)? current) =>
         distance < currentDistance || (distance == currentDistance && (current is null || candidate.Y < current.Value.Y || candidate.Y == current.Value.Y && candidate.X < current.Value.X));
 
+    private static readonly (int Dx, int Dy)[] CardinalOffsets = [(0, -1), (-1, 0), (1, 0), (0, 1)];
+
     public static bool IsDrinkingTile(SimulationState state, int x, int y)
     {
         if (state.World.Tiles[x, y].Terrain is TerrainType.DeepWater or TerrainType.ShallowWater) return false;
-        foreach (var (dx, dy) in new[] { (0, -1), (-1, 0), (1, 0), (0, 1) })
+        foreach (var (dx, dy) in CardinalOffsets)
         {
             int nx = x + dx; int ny = y + dy;
             if (nx >= 0 && ny >= 0 && nx < state.World.Width && ny < state.World.Height && state.World.Tiles[nx, ny].Terrain is TerrainType.DeepWater or TerrainType.ShallowWater) return true;

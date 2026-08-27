@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+
 namespace WildSeed.Simulation.Random;
 
 public static class DeterministicRandom
@@ -6,15 +8,17 @@ public static class DeterministicRandom
     {
         Span<byte> id = stackalloc byte[16];
         organismId.TryWriteBytes(id);
-        ulong high = BitConverter.ToUInt64(id[..8]);
-        ulong low = BitConverter.ToUInt64(id[8..]);
+        ulong high = BinaryPrimitives.ReadUInt64LittleEndian(id[..8]);
+        ulong low = BinaryPrimitives.ReadUInt64LittleEndian(id[8..]);
         return Mix(seed ^ (ulong)epoch ^ high ^ RotateLeft(low, 17) ^ (ulong)channel * 0x9E3779B97F4A7C15UL);
     }
 
     public static int NextInt(ulong seed, long epoch, Guid organismId, RandomChannel channel, int minInclusive, int maxExclusive)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(minInclusive, maxExclusive);
-        return minInclusive + (int)(NextUInt64(seed, epoch, organismId, channel) % (uint)(maxExclusive - minInclusive));
+        ulong range = (ulong)(uint)(maxExclusive - minInclusive);
+        ulong random = NextUInt64(seed, epoch, organismId, channel) >> 32;
+        return minInclusive + (int)(random % range);
     }
 
     public static float NextSingle(ulong seed, long epoch, Guid organismId, RandomChannel channel) =>

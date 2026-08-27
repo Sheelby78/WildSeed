@@ -15,4 +15,5 @@ public static class SurvivalRulesV2
     public const int CriticalNeed = 750;
     public const int ActionNeedThreshold = 150;
     public const int MaximumAgeTicks = 20_000;
+    public const int ExplorationCadenceTicks = 20;
 }

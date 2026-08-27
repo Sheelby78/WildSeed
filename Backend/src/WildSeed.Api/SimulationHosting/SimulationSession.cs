@@ -13,6 +13,8 @@ public sealed class SimulationSession
     private string? _ownerConnectionId;
     private DateTimeOffset? _detachedAt;
     private readonly Dictionary<string, int> _deathCounts = [];
+    private string _cachedFingerprint = "";
+    private long _lastFingerprintTick = -1;
 
     public SimulationSession(string token, SimulationState state)
     {
@@ -29,7 +31,12 @@ public sealed class SimulationSession
         lock (_gate)
         {
             var snapshot = _engine.Snapshot();
-            return new SimulationSnapshotResponse(snapshot.Tick, IsRunning, Speed, SimulationStateFingerprint.Compute(GetState()).ToString(), snapshot.Organisms.Count,
+            if (string.IsNullOrEmpty(_cachedFingerprint) || snapshot.Tick - _lastFingerprintTick >= 10 || !IsRunning)
+            {
+                _cachedFingerprint = SimulationStateFingerprint.Compute(GetState()).ToString();
+                _lastFingerprintTick = snapshot.Tick;
+            }
+            return new SimulationSnapshotResponse(snapshot.Tick, IsRunning, Speed, _cachedFingerprint, snapshot.Organisms.Count,
                 snapshot.Organisms.GroupBy(item => item.Action.ToString()).ToDictionary(group => group.Key, group => group.Count()), new Dictionary<string, int>(_deathCounts), snapshot.Organisms.Select(item => new RuntimeOrganismDto(item.Id.ToString(), item.Species.ToString(), item.X, item.Y, item.Action.ToString())).ToArray());
         }
     }
