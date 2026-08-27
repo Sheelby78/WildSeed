@@ -1,0 +1,63 @@
+:root {
+  --bg-app: #070b09;
+  --bg-sidebar: #0d1210;
+  --bg-input: #171e1a;
+  --border-color: rgba(195, 218, 203, 0.12);
+  --border-strong: rgba(195, 218, 203, 0.2);
+  --text-primary: #eef3ef;
+  --text-secondary: #a4afa7;
+  --text-muted: #6f7c73;
+  --accent: #a7d46f;
+  --accent-bright: #bce77f;
+  --danger: #f1957e;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  --font-sans: Inter, 'Aptos', 'Segoe UI', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 760px) {
+  html,
+  body,
+  #root {
+    overflow: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
