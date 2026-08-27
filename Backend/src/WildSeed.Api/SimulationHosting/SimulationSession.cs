@@ -36,7 +36,10 @@ public sealed class SimulationSession
                 _cachedFingerprint = SimulationStateFingerprint.Compute(GetState()).ToString();
                 _lastFingerprintTick = snapshot.Tick;
             }
+            int herbivores = snapshot.Organisms.Count(item => item.Species == Species.Herbivore);
+            int carnivores = snapshot.Organisms.Count(item => item.Species == Species.Carnivore);
             return new SimulationSnapshotResponse(snapshot.Tick, IsRunning, Speed, _cachedFingerprint, snapshot.Organisms.Count,
+                herbivores, carnivores,
                 snapshot.Organisms.GroupBy(item => item.Action.ToString()).ToDictionary(group => group.Key, group => group.Count()), new Dictionary<string, int>(_deathCounts), snapshot.Organisms.Select(item => new RuntimeOrganismDto(item.Id.ToString(), item.Species.ToString(), item.X, item.Y, item.Action.ToString())).ToArray());
         }
     }

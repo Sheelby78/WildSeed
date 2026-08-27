@@ -7,5 +7,8 @@ public enum OrganismAction : byte
     Eat,
     SeekWater,
     Drink,
-    Rest
+    Rest,
+    Hunt,
+    Attack,
+    Flee
 }

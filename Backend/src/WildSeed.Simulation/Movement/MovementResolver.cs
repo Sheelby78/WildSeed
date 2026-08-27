@@ -21,19 +21,33 @@ public sealed class MovementResolver
 
     private static readonly int[] HeadingOffsets = [0, 1, 7, 2, 6, 3, 5, 4];
 
-    public void Move(SimulationState state, OrganismState organism, (int X, int Y)? target)
+    public void Move(SimulationState state, OrganismState organism, (int X, int Y)? target, bool isFleeing = false, float speedMultiplier = 1.0f)
     {
-        float distance = organism.Genome.Speed * (float)SimulationContract.LogicalTickDuration.TotalSeconds;
+        float distance = organism.Genome.Speed * speedMultiplier * (float)SimulationContract.LogicalTickDuration.TotalSeconds;
 
         if (target is { } tile)
         {
             float dx = tile.X + 0.5f - organism.X;
             float dy = tile.Y + 0.5f - organism.Y;
-            TryStep(state, organism, dx, dy, distance);
+            if (isFleeing)
+            {
+                dx = -dx;
+                dy = -dy;
+            }
+
+            if (!TryStep(state, organism, dx, dy, distance) && isFleeing)
+            {
+                float perpX1 = -dy;
+                float perpY1 = dx;
+                if (!TryStep(state, organism, perpX1, perpY1, distance))
+                {
+                    TryStep(state, organism, -perpX1, -perpY1, distance);
+                }
+            }
             return;
         }
 
-        long epoch = state.Tick / SurvivalRulesV2.ExplorationCadenceTicks;
+        long epoch = state.Tick / SurvivalRulesV3.ExplorationCadenceTicks;
         int baseHeading = DeterministicRandom.NextInt((ulong)(uint)state.World.Configuration.Seed, epoch, organism.Id, RandomChannel.ExplorationHeading, 0, 8);
 
         foreach (int offset in HeadingOffsets)

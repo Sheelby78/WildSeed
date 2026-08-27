@@ -5,10 +5,12 @@ namespace WildSeed.Simulation.Tests.Contracts;
 public sealed class SimulationContractTests
 {
     [Fact]
-    public void Contract_version_is_1()
+    public void Contract_version_is_3()
     {
         Assert.Equal(1, SimulationContract.Version1);
-        Assert.Equal(2, SimulationContract.CurrentVersion);
+        Assert.Equal(2, SimulationContract.Version2);
+        Assert.Equal(3, SimulationContract.Version3);
+        Assert.Equal(3, SimulationContract.CurrentVersion);
     }
 
     [Fact]

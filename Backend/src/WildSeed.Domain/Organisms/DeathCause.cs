@@ -4,5 +4,6 @@ public enum DeathCause : byte
 {
     Starvation,
     Dehydration,
-    OldAge
+    OldAge,
+    Predation
 }
