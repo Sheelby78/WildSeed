@@ -133,20 +133,35 @@ export function App() {
             </div>
             <div className="metric-divider" />
             <div className="metric-item">
-              <span>Population</span>
+              <span>Total</span>
               <strong>{world.snapshot.population}</strong>
+            </div>
+            <div className="metric-divider" />
+            <div className="metric-item">
+              <span style={{ color: '#facc15' }}>Herbivores</span>
+              <strong style={{ color: '#fef08a' }}>{world.snapshot.herbivores ?? world.snapshot.organisms.filter(o => o.species === 'Herbivore').length}</strong>
+            </div>
+            <div className="metric-divider" />
+            <div className="metric-item">
+              <span style={{ color: '#ef4444' }}>Carnivores</span>
+              <strong style={{ color: '#fca5a5' }}>{world.snapshot.carnivores ?? world.snapshot.organisms.filter(o => o.species === 'Carnivore').length}</strong>
             </div>
           </div>
         )}
         {world && telemetry && !isLoading && (
           <section className="survival-telemetry" aria-label="Survival telemetry">
+            <span className="telemetry-title">Population</span>
+            <div className="telemetry-values">
+              <span>Herbivores: <strong style={{ color: '#facc15' }}>{world.snapshot.herbivores ?? world.snapshot.organisms.filter(o => o.species === 'Herbivore').length}</strong></span>
+              <span>Carnivores: <strong style={{ color: '#ef4444' }}>{world.snapshot.carnivores ?? world.snapshot.organisms.filter(o => o.species === 'Carnivore').length}</strong></span>
+            </div>
             <span className="telemetry-title">Average active actions · last second</span>
             <div className="telemetry-values">
-              {['Explore', 'SeekFood', 'Eat', 'SeekWater', 'Drink', 'Rest'].map(action => <span key={action}>{action}: <strong>{telemetry.actions[action] ?? 0}</strong></span>)}
+              {['Explore', 'SeekFood', 'Eat', 'SeekWater', 'Drink', 'Rest', 'Hunt', 'Attack', 'Flee'].map(action => <span key={action}>{action}: <strong>{telemetry.actions[action] ?? 0}</strong></span>)}
             </div>
             <span className="telemetry-title">Deaths</span>
             <div className="telemetry-values">
-              {['Starvation', 'Dehydration', 'OldAge'].map(cause => <span key={cause}>{cause}: <strong>{telemetry.deaths[cause] ?? 0}</strong></span>)}
+              {['Starvation', 'Dehydration', 'OldAge', 'Predation'].map(cause => <span key={cause}>{cause}: <strong>{telemetry.deaths[cause] ?? 0}</strong></span>)}
             </div>
           </section>
         )}

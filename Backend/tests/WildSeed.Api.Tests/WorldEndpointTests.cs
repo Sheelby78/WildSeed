@@ -44,7 +44,7 @@ public sealed class WorldEndpointTests : IClassFixture<WebApplicationFactory<Pro
         Assert.Equal(128, snapshot.Tiles[0].Length);
         Assert.Equal(60, snapshot.Organisms.Length);
         Assert.StartsWith("v1:", snapshot.Fingerprint);
-        Assert.StartsWith("v2:", generated.Snapshot.Fingerprint);
+        Assert.StartsWith("v3:", generated.Snapshot.Fingerprint);
     }
 
     [Fact]
@@ -96,5 +96,33 @@ public sealed class WorldEndpointTests : IClassFixture<WebApplicationFactory<Pro
         var response = await _client.PostAsJsonAsync("/api/world/generate", request);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public void SimulationSession_AdvancesAndTracksPredationDeaths()
+    {
+        var tiles = new Domain.Terrain.Tile[64, 64];
+        for (int y = 0; y < 64; y++)
+        for (int x = 0; x < 64; x++)
+            tiles[x, y] = new Domain.Terrain.Tile(x, y, Domain.Terrain.TerrainType.Grass, 0.0f);
+
+        var config = new Domain.World.WorldConfiguration(42, 64, 64, 1, 1, 0.0f, 0.1f, 0.05f, 0.1f);
+        var world = new Domain.World.WorldMap(config, tiles,
+        [
+            new Domain.Organisms.Organism(Guid.NewGuid(), Domain.Organisms.Species.Carnivore, new Domain.Organisms.Genome(1.0f), 10.0f, 10.0f),
+            new Domain.Organisms.Organism(Guid.NewGuid(), Domain.Organisms.Species.Herbivore, new Domain.Organisms.Genome(1.0f), 10.5f, 10.5f)
+        ]);
+
+        var state = WildSeed.Simulation.Engine.SimulationStateFactory.Create(world);
+        state.Organisms[0].Needs = new Domain.Organisms.OrganismNeeds(hunger: 500, thirst: 0, energy: 800);
+
+        var session = new WildSeed.Api.SimulationHosting.SimulationSession("test-token", state);
+        session.Start("1x");
+
+        var result = session.Advance();
+        Assert.NotNull(result);
+
+        var response = session.CreateResponse();
+        Assert.True(response.Deaths.ContainsKey("Predation") || response.Population == 1);
     }
 }

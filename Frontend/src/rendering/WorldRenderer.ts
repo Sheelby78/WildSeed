@@ -124,10 +124,23 @@ export class WorldRenderer {
       this.worldContainer.addChild(this.organismGraphics)
     }
     this.organismGraphics.clear()
-    const orgRadius = Math.max(2, TILE_SIZE * 0.25)
+
     for (const organism of organisms) {
-      const color = organism.species === 'Herbivore' ? 0xfacc15 : 0xef4444
-      this.organismGraphics.circle(organism.x * TILE_SIZE, organism.y * TILE_SIZE, orgRadius)
+      const isCarnivore = organism.species === 'Carnivore'
+      const baseRadius = Math.max(2, TILE_SIZE * (isCarnivore ? 0.32 : 0.25))
+      const posX = organism.x * TILE_SIZE
+      const posY = organism.y * TILE_SIZE
+
+      if (organism.action === 'Flee') {
+        this.organismGraphics.circle(posX, posY, baseRadius + 2.5)
+        this.organismGraphics.stroke({ color: 0x38bdf8, width: 1.5, alpha: 0.85 })
+      } else if (organism.action === 'Hunt' || organism.action === 'Attack') {
+        this.organismGraphics.circle(posX, posY, baseRadius + 2.5)
+        this.organismGraphics.stroke({ color: 0xf97316, width: 1.5, alpha: 0.9 })
+      }
+
+      const color = isCarnivore ? 0xef4444 : 0xfacc15
+      this.organismGraphics.circle(posX, posY, baseRadius)
       this.organismGraphics.fill({ color })
     }
   }

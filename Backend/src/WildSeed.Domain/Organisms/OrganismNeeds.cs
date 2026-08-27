@@ -20,6 +20,8 @@ public readonly record struct OrganismNeeds
 
     public OrganismNeeds Eat(int units) => new(Hunger - units, Thirst, Energy);
 
+    public OrganismNeeds Feed(int hungerUnits, int energyUnits) => new(Hunger - hungerUnits, Thirst, Energy + energyUnits);
+
     public OrganismNeeds Drink(int units) => new(Hunger, Thirst - units, Energy);
 
     public OrganismNeeds Rest(int units) => new(Hunger, Thirst, Energy + units);

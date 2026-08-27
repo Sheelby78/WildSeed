@@ -5,11 +5,11 @@ namespace WildSeed.Simulation.Determinism;
 
 public static class SimulationStateFingerprint
 {
-    public static StateFingerprint Compute(SimulationState state)
+    public static StateFingerprint Compute(SimulationState state, int version = SimulationContract.CurrentVersion)
     {
         ArgumentNullException.ThrowIfNull(state);
         using var writer = new CanonicalStateWriter();
-        writer.WriteHeader((ulong)(uint)state.World.Configuration.Seed, state.Tick, SimulationContract.CurrentVersion);
+        writer.WriteHeader((ulong)(uint)state.World.Configuration.Seed, state.Tick, version);
         var config = state.World.Configuration;
         writer.WriteInt32(config.Width).WriteInt32(config.Height).WriteInt32(config.InitialHerbivores).WriteInt32(config.InitialCarnivores)
             .WriteFloat(config.VegetationDensity).WriteFloat(config.WaterLevel).WriteFloat(config.MutationProbability).WriteFloat(config.MutationStrength);
@@ -26,6 +26,6 @@ public static class SimulationStateFingerprint
             target.WriteBytes(bytes).WriteByte((byte)organism.Species).WriteFloat(organism.Genome.Speed).WriteFloat(organism.X).WriteFloat(organism.Y)
                 .WriteInt32(organism.AgeTicks).WriteInt32(organism.Needs.Hunger).WriteInt32(organism.Needs.Thirst).WriteInt32(organism.Needs.Energy).WriteByte((byte)organism.Action);
         });
-        return StateFingerprint.Compute(writer, SimulationContract.CurrentVersion);
+        return StateFingerprint.Compute(writer, version);
     }
 }

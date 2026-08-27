@@ -47,6 +47,8 @@ export interface SimulationSnapshot {
   speed: string
   fingerprint: string
   population: number
+  herbivores: number
+  carnivores: number
   actions: Record<string, number>
   deaths: Record<string, number>
   organisms: RuntimeOrganism[]

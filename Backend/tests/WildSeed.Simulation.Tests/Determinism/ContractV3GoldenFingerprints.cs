@@ -6,7 +6,7 @@ using WildSeed.Simulation.WorldGeneration;
 
 namespace WildSeed.Simulation.Tests.Determinism;
 
-public static class ContractV2GoldenFingerprints
+public static class ContractV3GoldenFingerprints
 {
     private static SimulationState CreateStandardWorld()
     {
@@ -28,6 +28,6 @@ public static class ContractV2GoldenFingerprints
     {
         var engine = new SimulationEngine(CreateStandardWorld());
         if (targetTick > 0) engine.AdvanceTicks(targetTick);
-        return SimulationStateFingerprint.Compute(engine.State, SimulationContract.Version2);
+        return SimulationStateFingerprint.Compute(engine.State, SimulationContract.Version3);
     }
 }
