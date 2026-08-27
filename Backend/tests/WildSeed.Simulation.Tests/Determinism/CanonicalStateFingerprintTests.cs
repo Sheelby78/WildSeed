@@ -140,10 +140,10 @@ public sealed class CanonicalStateFingerprintTests
     public void StateFingerprint_formats_and_parses_correctly()
     {
         using var writer = new CanonicalStateWriter();
-        writer.WriteHeader(seed: 12345, tick: 100);
+        writer.WriteHeader(seed: 12345, tick: 100, contractVersion: SimulationContract.Version1);
         writer.WriteInt32(999);
 
-        var fingerprint = StateFingerprint.Compute(writer);
+        var fingerprint = StateFingerprint.Compute(writer, SimulationContract.Version1);
         string formatted = fingerprint.ToString();
 
         Assert.StartsWith("v1:", formatted);
@@ -159,13 +159,13 @@ public sealed class CanonicalStateFingerprintTests
     public void StateFingerprint_changes_on_any_state_field_change()
     {
         using var writerA = new CanonicalStateWriter();
-        writerA.WriteHeader(seed: 1, tick: 0).WriteInt32(100);
+        writerA.WriteHeader(seed: 1, tick: 0, contractVersion: SimulationContract.Version1).WriteInt32(100);
 
         using var writerB = new CanonicalStateWriter();
-        writerB.WriteHeader(seed: 1, tick: 0).WriteInt32(101);
+        writerB.WriteHeader(seed: 1, tick: 0, contractVersion: SimulationContract.Version1).WriteInt32(101);
 
-        var fpA = StateFingerprint.Compute(writerA);
-        var fpB = StateFingerprint.Compute(writerB);
+        var fpA = StateFingerprint.Compute(writerA, SimulationContract.Version1);
+        var fpB = StateFingerprint.Compute(writerB, SimulationContract.Version1);
 
         Assert.NotEqual(fpA, fpB);
         Assert.NotEqual(fpA.Digest, fpB.Digest);
@@ -189,13 +189,13 @@ public sealed class CanonicalStateFingerprintTests
     public void StateFingerprint_is_repeatable_across_identical_computations()
     {
         using var writer1 = new CanonicalStateWriter();
-        writer1.WriteHeader(seed: 42, tick: 500).WriteString("State Test").WriteFloat(3.14f);
+        writer1.WriteHeader(seed: 42, tick: 500, contractVersion: SimulationContract.Version1).WriteString("State Test").WriteFloat(3.14f);
 
         using var writer2 = new CanonicalStateWriter();
-        writer2.WriteHeader(seed: 42, tick: 500).WriteString("State Test").WriteFloat(3.14f);
+        writer2.WriteHeader(seed: 42, tick: 500, contractVersion: SimulationContract.Version1).WriteString("State Test").WriteFloat(3.14f);
 
-        var fp1 = StateFingerprint.Compute(writer1);
-        var fp2 = StateFingerprint.Compute(writer2);
+        var fp1 = StateFingerprint.Compute(writer1, SimulationContract.Version1);
+        var fp2 = StateFingerprint.Compute(writer2, SimulationContract.Version1);
 
         Assert.Equal(fp1, fp2);
         Assert.Equal(fp1.Digest, fp2.Digest);

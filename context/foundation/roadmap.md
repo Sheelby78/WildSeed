@@ -3,7 +3,7 @@ project: "Wild Seed"
 version: 1
 status: draft
 created: 2026-08-26
-updated: 2026-08-26
+updated: 2026-08-27
 prd_version: 1
 main_goal: learn
 top_blocker: skills
@@ -31,7 +31,7 @@ Wild Seed is an interactive 2D ecosystem simulation intended to feel like a livi
 |---|---|---|---|---|---|
 | F-01 | determinism-performance-contract | (foundation) deterministic result equivalence and headless throughput can be measured before simulation behavior expands | — | PRD §Non-Functional Requirements | done |
 | S-01 | configurable-procedural-world | visitor can configure world parameters and see a cohesive rendered procedural world | F-01 | US-01, FR-001, FR-002, FR-009 | done |
-| S-02 | deterministic-survival-loop | visitor can run, pause, accelerate, and observe a deterministic needs-driven survival loop | S-01 | US-01, FR-003, FR-004, FR-005, FR-008, FR-009 | proposed |
+| S-02 | deterministic-survival-loop | visitor can run, pause, accelerate, and observe a deterministic needs-driven survival loop | S-01 | US-01, FR-003, FR-004, FR-005, FR-008, FR-009 | ready |
 | S-03 | predator-prey-dynamics | visitor can observe herbivores feeding and predators hunting while prey flee | S-02 | US-01, FR-006, FR-009 | proposed |
 | S-04 | inherited-evolution | visitor can observe reproduction, inherited genomes, mutation, and trait trade-offs | S-02 | US-01, FR-007, FR-009 | proposed |
 | S-05 | ecosystem-statistics | visitor can follow population, birth, death, lifespan, and average genome-trait statistics over time | S-03, S-04 | US-01, FR-010 | proposed |
@@ -88,7 +88,7 @@ What's already in place in the codebase as of `2026-08-26` (auto-researched + us
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** This deliberately exercises the least familiar decision and movement mechanics before predation and inheritance make failures harder to interpret.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-03: Observe predator-prey dynamics
 
@@ -154,9 +154,9 @@ What's already in place in the codebase as of `2026-08-26` (auto-researched + us
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/plan` | Notes |
 |---|---|---|---|---|
-| F-01 | determinism-performance-contract | Establish deterministic and performance verification contract | yes | Run `/plan determinism-performance-contract` |
-| S-01 | configurable-procedural-world | Let visitors configure and generate a procedural world | yes | Completed |
-| S-02 | deterministic-survival-loop | Let visitors run and observe a deterministic survival loop | yes | Requires S-01 (ready) |
+| F-01 | determinism-performance-contract | Establish deterministic and performance verification contract | done | Archived |
+| S-01 | configurable-procedural-world | Let visitors configure and generate a procedural world | done | Implemented & reviewed |
+| S-02 | deterministic-survival-loop | Let visitors run and observe a deterministic survival loop | yes | Run `/plan deterministic-survival-loop` |
 | S-03 | predator-prey-dynamics | Let visitors observe predator-prey dynamics | no | Requires S-02 |
 | S-04 | inherited-evolution | Let visitors observe inherited evolution | no | Requires S-02 |
 | S-05 | ecosystem-statistics | Let visitors follow ecosystem statistics | no | Requires S-03 and S-04 |
@@ -181,3 +181,4 @@ What's already in place in the codebase as of `2026-08-26` (auto-researched + us
 ## Done
  
 - **F-01: (foundation) deterministic result equivalence and headless throughput can be measured before simulation behavior expands** — Archived 2026-08-26 → `context/archive/2026-08-26-determinism-performance-contract/`. Lesson: —.
+- **S-01: visitor can configure world parameters and see a cohesive rendered procedural world** — Implemented 2026-08-27 → `context/changes/configurable-procedural-world/`. Lesson: —.

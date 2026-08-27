@@ -1,5 +1,5 @@
 import { Application, Container, Graphics } from 'pixi.js'
-import type { TileData, WorldSnapshot } from '@/transport/WorldApi'
+import type { RuntimeOrganism, TileData, WorldSnapshot } from '@/transport/WorldApi'
 import { CameraController } from './CameraController'
 
 const TILE_SIZE = 8
@@ -115,6 +115,20 @@ export class WorldRenderer {
     const viewHeight = this.app.screen.height
 
     this.camera.reset(worldWidthPx, worldHeightPx, viewWidth, viewHeight)
+  }
+
+  updateOrganisms(organisms: RuntimeOrganism[]): void {
+    if (!this.worldContainer || this.isDestroyed) return
+    if (this.organismGraphics) {
+      this.worldContainer.removeChild(this.organismGraphics)
+      this.organismGraphics.destroy()
+    }
+    this.organismGraphics = new Graphics()
+    for (const organism of organisms) {
+      this.organismGraphics.circle(organism.x * TILE_SIZE, organism.y * TILE_SIZE, Math.max(2, TILE_SIZE * 0.25))
+      this.organismGraphics.fill({ color: organism.species === 'Herbivore' ? 0xfacc15 : 0xef4444 })
+    }
+    this.worldContainer.addChild(this.organismGraphics)
   }
 
   resize(): void {

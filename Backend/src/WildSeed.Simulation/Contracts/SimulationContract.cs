@@ -2,7 +2,9 @@ namespace WildSeed.Simulation.Contracts;
 
 public static class SimulationContract
 {
-    public const int Version = 1;
+    public const int Version1 = 1;
+
+    public const int CurrentVersion = 2;
 
     public const int LogicalTickMilliseconds = 100;
 

@@ -35,14 +35,16 @@ public sealed class WorldEndpointTests : IClassFixture<WebApplicationFactory<Pro
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var snapshot = await response.Content.ReadFromJsonAsync<WorldSnapshotResponse>();
-        Assert.NotNull(snapshot);
+        var generated = await response.Content.ReadFromJsonAsync<GenerateWorldResponse>();
+        Assert.NotNull(generated);
+        var snapshot = generated.StaticWorld;
         Assert.Equal(128, snapshot.Width);
         Assert.Equal(128, snapshot.Height);
         Assert.Equal(128, snapshot.Tiles.Length);
         Assert.Equal(128, snapshot.Tiles[0].Length);
         Assert.Equal(60, snapshot.Organisms.Length);
         Assert.StartsWith("v1:", snapshot.Fingerprint);
+        Assert.StartsWith("v2:", generated.Snapshot.Fingerprint);
     }
 
     [Fact]
@@ -52,8 +54,9 @@ public sealed class WorldEndpointTests : IClassFixture<WebApplicationFactory<Pro
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var snapshot = await response.Content.ReadFromJsonAsync<WorldSnapshotResponse>();
-        Assert.NotNull(snapshot);
+        var generated = await response.Content.ReadFromJsonAsync<GenerateWorldResponse>();
+        Assert.NotNull(generated);
+        var snapshot = generated.StaticWorld;
         Assert.Equal(128, snapshot.Width);
         Assert.Equal(128, snapshot.Height);
         Assert.NotEmpty(snapshot.Fingerprint);
@@ -74,12 +77,12 @@ public sealed class WorldEndpointTests : IClassFixture<WebApplicationFactory<Pro
         var response1 = await _client.PostAsJsonAsync("/api/world/generate", request);
         var response2 = await _client.PostAsJsonAsync("/api/world/generate", request);
 
-        var snapshot1 = await response1.Content.ReadFromJsonAsync<WorldSnapshotResponse>();
-        var snapshot2 = await response2.Content.ReadFromJsonAsync<WorldSnapshotResponse>();
+        var snapshot1 = await response1.Content.ReadFromJsonAsync<GenerateWorldResponse>();
+        var snapshot2 = await response2.Content.ReadFromJsonAsync<GenerateWorldResponse>();
 
         Assert.NotNull(snapshot1);
         Assert.NotNull(snapshot2);
-        Assert.Equal(snapshot1.Fingerprint, snapshot2.Fingerprint);
+        Assert.Equal(snapshot1.StaticWorld.Fingerprint, snapshot2.StaticWorld.Fingerprint);
     }
 
     [Fact]

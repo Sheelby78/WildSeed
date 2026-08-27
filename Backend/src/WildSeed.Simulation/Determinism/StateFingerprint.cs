@@ -26,13 +26,13 @@ public readonly record struct StateFingerprint : IEquatable<StateFingerprint>, I
         Digest = digest.ToLowerInvariant();
     }
 
-    public static StateFingerprint Compute(ReadOnlySpan<byte> canonicalBytes, int contractVersion = SimulationContract.Version)
+    public static StateFingerprint Compute(ReadOnlySpan<byte> canonicalBytes, int contractVersion)
     {
         byte[] hash = SHA256.HashData(canonicalBytes);
         return new StateFingerprint(contractVersion, Convert.ToHexStringLower(hash));
     }
 
-    public static StateFingerprint Compute(CanonicalStateWriter writer, int contractVersion = SimulationContract.Version)
+    public static StateFingerprint Compute(CanonicalStateWriter writer, int contractVersion)
     {
         ArgumentNullException.ThrowIfNull(writer);
         return Compute(writer.WrittenSpan, contractVersion);

@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using WildSeed.Api.Contracts;
 using WildSeed.Domain.World;
 using WildSeed.Simulation.WorldGeneration;
+using WildSeed.Simulation.Engine;
+using WildSeed.Simulation.Determinism;
+using WildSeed.Api.SimulationHosting;
 
 namespace WildSeed.Api.Endpoints;
 
@@ -15,9 +18,10 @@ public static class WorldEndpoints
         return app;
     }
 
-    private static Results<Ok<WorldSnapshotResponse>, ProblemHttpResult> GenerateWorld(
+    private static Results<Ok<GenerateWorldResponse>, ProblemHttpResult> GenerateWorld(
         GenerateWorldRequest? request,
-        WorldGenerator generator)
+        WorldGenerator generator,
+        SimulationSessionManager sessions)
     {
         try
         {
@@ -27,7 +31,8 @@ public static class WorldEndpoints
             var world = generator.Generate(domainConfig);
             var fingerprint = WorldFingerprint.Compute(world);
 
-            var response = WorldSnapshotResponse.FromDomain(world, fingerprint);
+            var session = sessions.Create(SimulationStateFactory.Create(world));
+            var response = new GenerateWorldResponse(session.Token, WorldSnapshotResponse.FromDomain(world, fingerprint), session.CreateResponse());
             return TypedResults.Ok(response);
         }
         catch (ArgumentException ex)

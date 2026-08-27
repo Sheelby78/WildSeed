@@ -20,7 +20,7 @@ public sealed class CanonicalStateWriter : IDisposable
 
     public ReadOnlySpan<byte> WrittenSpan => _stream.GetBuffer().AsSpan(0, (int)_stream.Length);
 
-    public CanonicalStateWriter WriteHeader(ulong seed, long tick, int contractVersion = SimulationContract.Version)
+    public CanonicalStateWriter WriteHeader(ulong seed, long tick, int contractVersion)
     {
         WriteBytes(MagicHeader);
         WriteInt32(CurrentSchemaVersion);
