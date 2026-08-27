@@ -8,8 +8,11 @@ public sealed class Organism
     public float X { get; }
     public float Y { get; }
     public bool IsAlive { get; }
+    public Guid? MotherId { get; }
+    public Guid? FatherId { get; }
+    public int Generation { get; }
 
-    public Organism(Guid id, Species species, Genome genome, float x, float y, bool isAlive = true)
+    public Organism(Guid id, Species species, Genome genome, float x, float y, bool isAlive = true, Guid? motherId = null, Guid? fatherId = null, int generation = 1)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(x);
         ArgumentOutOfRangeException.ThrowIfNegative(y);
@@ -20,5 +23,8 @@ public sealed class Organism
         X = x;
         Y = y;
         IsAlive = isAlive;
+        MotherId = motherId;
+        FatherId = fatherId;
+        Generation = generation;
     }
 }

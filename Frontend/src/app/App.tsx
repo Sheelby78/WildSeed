@@ -20,6 +20,7 @@ export function App() {
   const telemetryWindowRef = useRef<{ startedAt: number, snapshotCount: number, actionTotals: Record<string, number> } | null>(null)
   const [running, setRunning] = useState(false)
   const [speed, setSpeed] = useState('1x')
+  const [fps, setFps] = useState(0)
 
   const handleGenerate = useCallback(async (config: WorldConfig) => {
     setIsLoading(true)
@@ -80,9 +81,16 @@ export function App() {
       renderer.resize()
     }
 
+    const fpsInterval = setInterval(() => {
+      if (rendererRef.current) {
+        setFps(rendererRef.current.getFPS())
+      }
+    }, 500)
+
     window.addEventListener('resize', handleResize)
 
     return () => {
+      clearInterval(fpsInterval)
       window.removeEventListener('resize', handleResize)
       renderer.destroy()
       connectionRef.current?.stop()
@@ -146,6 +154,16 @@ export function App() {
               <span style={{ color: '#ef4444' }}>Carnivores</span>
               <strong style={{ color: '#fca5a5' }}>{world.snapshot.carnivores ?? world.snapshot.organisms.filter(o => o.species === 'Carnivore').length}</strong>
             </div>
+            <div className="metric-divider" />
+            <div className="metric-item">
+              <span style={{ color: '#c084fc' }}>Avg Gen</span>
+              <strong style={{ color: '#e9d5ff' }}>Gen {world.snapshot.organisms.length > 0 ? (world.snapshot.organisms.reduce((acc, o) => acc + (o.generation ?? 1), 0) / world.snapshot.organisms.length).toFixed(1) : '1.0'}</strong>
+            </div>
+            <div className="metric-divider" />
+            <div className="metric-item">
+              <span style={{ color: '#38bdf8' }}>FPS</span>
+              <strong style={{ color: '#bae6fd' }}>{fps}</strong>
+            </div>
           </div>
         )}
         {world && telemetry && !isLoading && (
@@ -157,7 +175,7 @@ export function App() {
             </div>
             <span className="telemetry-title">Average active actions · last second</span>
             <div className="telemetry-values">
-              {['Explore', 'SeekFood', 'Eat', 'SeekWater', 'Drink', 'Rest', 'Hunt', 'Attack', 'Flee'].map(action => <span key={action}>{action}: <strong>{telemetry.actions[action] ?? 0}</strong></span>)}
+              {['Explore', 'SeekFood', 'Eat', 'SeekWater', 'Drink', 'Rest', 'Hunt', 'Attack', 'Flee', 'Mate'].map(action => <span key={action}>{action}: <strong>{telemetry.actions[action] ?? 0}</strong></span>)}
             </div>
             <span className="telemetry-title">Deaths</span>
             <div className="telemetry-values">

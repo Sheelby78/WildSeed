@@ -44,7 +44,7 @@ public sealed class WorldEndpointTests : IClassFixture<WebApplicationFactory<Pro
         Assert.Equal(128, snapshot.Tiles[0].Length);
         Assert.Equal(60, snapshot.Organisms.Length);
         Assert.StartsWith("v1:", snapshot.Fingerprint);
-        Assert.StartsWith("v3:", generated.Snapshot.Fingerprint);
+        Assert.StartsWith("v4:", generated.Snapshot.Fingerprint);
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public sealed class WorldEndpointTests : IClassFixture<WebApplicationFactory<Pro
         ]);
 
         var state = WildSeed.Simulation.Engine.SimulationStateFactory.Create(world);
-        state.Organisms[0].Needs = new Domain.Organisms.OrganismNeeds(hunger: 500, thirst: 0, energy: 800);
+        state.Organisms.First(o => o.Species == Domain.Organisms.Species.Carnivore).Needs = new Domain.Organisms.OrganismNeeds(hunger: 500, thirst: 0, energy: 800);
 
         var session = new WildSeed.Api.SimulationHosting.SimulationSession("test-token", state);
         session.Start("1x");
@@ -124,5 +124,37 @@ public sealed class WorldEndpointTests : IClassFixture<WebApplicationFactory<Pro
 
         var response = session.CreateResponse();
         Assert.True(response.Deaths.ContainsKey("Predation") || response.Population == 1);
+    }
+
+    [Fact]
+    public void SimulationSession_ReturnsSnapshotWithGenomeAndLineage()
+    {
+        var tiles = new Domain.Terrain.Tile[64, 64];
+        for (int y = 0; y < 64; y++)
+        for (int x = 0; x < 64; x++)
+            tiles[x, y] = new Domain.Terrain.Tile(x, y, Domain.Terrain.TerrainType.Grass, 0.0f);
+
+        var config = new Domain.World.WorldConfiguration(42, 64, 64, 1, 0, 0.0f, 0.1f, 0.05f, 0.1f);
+        var momId = Guid.NewGuid();
+        var dadId = Guid.NewGuid();
+        var world = new Domain.World.WorldMap(config, tiles,
+        [
+            new Domain.Organisms.Organism(Guid.NewGuid(), Domain.Organisms.Species.Herbivore, new Domain.Organisms.Genome(1.5f, 1.2f, 10.0f), 10.0f, 10.0f, true, momId, dadId, 3)
+        ]);
+
+        var state = WildSeed.Simulation.Engine.SimulationStateFactory.Create(world);
+        var session = new WildSeed.Api.SimulationHosting.SimulationSession("test-token", state);
+
+        var response = session.CreateResponse();
+        Assert.NotNull(response);
+        Assert.Single(response.Organisms);
+        var org = response.Organisms[0];
+        Assert.NotNull(org.Genome);
+        Assert.Equal(1.5f, org.Genome.Speed);
+        Assert.Equal(1.2f, org.Genome.Size);
+        Assert.Equal(10.0f, org.Genome.Vision);
+        Assert.Equal(momId.ToString(), org.MotherId);
+        Assert.Equal(dadId.ToString(), org.FatherId);
+        Assert.Equal(3, org.Generation);
     }
 }

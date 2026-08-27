@@ -30,7 +30,18 @@ public sealed class SimulationEngine
     public SimulationSnapshot Snapshot() => new(
         _state.Tick,
         _state.Organisms.OrderBy(item => item.Id)
-            .Select(item => new SimulationOrganismSnapshot(item.Id, item.Species, item.X, item.Y, item.AgeTicks, item.Needs, item.Action))
+            .Select(item => new SimulationOrganismSnapshot(
+                item.Id,
+                item.Species,
+                item.X,
+                item.Y,
+                item.AgeTicks,
+                item.Needs,
+                item.Action,
+                item.Genome,
+                item.MotherId,
+                item.FatherId,
+                item.Generation))
             .ToArray());
 
     public SimulationTickResult AdvanceTick()
@@ -42,11 +53,17 @@ public sealed class SimulationEngine
             _state.Vegetation[i] = _state.Vegetation[i].Regrow(SurvivalRulesV3.VegetationRegrowthPerTick);
         }
 
-        int thirstIncrement = _state.Tick % SurvivalRulesV3.ThirstMetabolismCadenceTicks == 0 ? SurvivalRulesV3.MetabolismThirst : 0;
+        int thirstIncrement = _state.Tick % SurvivalRulesV4.ThirstMetabolismCadenceTicks == 0 ? SurvivalRulesV4.MetabolismThirst : 0;
+        int baseHunger = _state.Tick % SurvivalRulesV4.HungerMetabolismCadenceTicks == 0 ? SurvivalRulesV4.MetabolismHunger : 0;
         foreach (var organism in _state.Organisms)
         {
             organism.AgeTicks++;
-            organism.Needs = organism.Needs.Metabolize(SurvivalRulesV3.MetabolismHunger, thirstIncrement, 0);
+            if (organism.ReproductionCooldownTicks > 0)
+            {
+                organism.ReproductionCooldownTicks--;
+            }
+            int hungerCost = (int)MathF.Ceiling(baseHunger * organism.Genome.Size);
+            organism.Needs = organism.Needs.Metabolize(hungerCost, thirstIncrement, 0);
         }
 
         _spatialGrid.Rebuild(_state.Organisms);
@@ -59,25 +76,32 @@ public sealed class SimulationEngine
         foreach (var (organism, intent) in scored)
         {
             organism.Action = intent.Action;
+            int moveEnergyCost = (int)MathF.Ceiling(SurvivalRulesV3.MovementEnergyCost * organism.Genome.Speed * organism.Genome.Size);
+            int sprintEnergyCost = (int)MathF.Ceiling(SurvivalRulesV3.SprintEnergyCost * organism.Genome.Speed * organism.Genome.Size);
 
             if (intent.Action is OrganismAction.Explore or OrganismAction.SeekFood or OrganismAction.SeekWater)
             {
                 _movement.Move(_state, organism, intent.Target);
-                organism.Needs = organism.Needs.Metabolize(0, 0, SurvivalRulesV3.MovementEnergyCost);
+                organism.Needs = organism.Needs.Metabolize(0, 0, moveEnergyCost);
+            }
+            else if (intent.Action == OrganismAction.Mate)
+            {
+                _movement.Move(_state, organism, intent.Target);
+                organism.Needs = organism.Needs.Metabolize(0, 0, moveEnergyCost);
             }
             else if (intent.Action == OrganismAction.Hunt)
             {
                 _movement.Move(_state, organism, intent.Target, isFleeing: false, speedMultiplier: SurvivalRulesV3.SprintSpeedMultiplier);
-                organism.Needs = organism.Needs.Metabolize(0, 0, SurvivalRulesV3.SprintEnergyCost);
+                organism.Needs = organism.Needs.Metabolize(0, 0, sprintEnergyCost);
             }
             else if (intent.Action == OrganismAction.Flee)
             {
                 _movement.Move(_state, organism, intent.Target, isFleeing: true, speedMultiplier: SurvivalRulesV3.SprintSpeedMultiplier);
-                organism.Needs = organism.Needs.Metabolize(0, 0, SurvivalRulesV3.SprintEnergyCost);
+                organism.Needs = organism.Needs.Metabolize(0, 0, sprintEnergyCost);
             }
             else if (intent.Action == OrganismAction.Attack)
             {
-                organism.Needs = organism.Needs.Metabolize(0, 0, SurvivalRulesV3.MovementEnergyCost);
+                organism.Needs = organism.Needs.Metabolize(0, 0, moveEnergyCost);
             }
             else if (intent.Action == OrganismAction.Drink)
             {
@@ -89,14 +113,15 @@ public sealed class SimulationEngine
             }
         }
 
+        var births = ReproductionResolver.Resolve(_state, scored);
         var predationDeaths = PredationResolver.Resolve(_state, scored);
         _vegetation.Resolve(_state, scored.Select(item => item.Intent));
         var environmentalDeaths = DeathResolver.Resolve(_state);
 
         var allEvents = predationDeaths
             .Concat(environmentalDeaths.Cast<OrganismDied>())
+            .Concat(births.Cast<SimulationEvent>())
             .OrderBy(item => item.OrganismId)
-            .Cast<SimulationEvent>()
             .ToArray();
 
         return new SimulationTickResult(Snapshot(), allEvents);

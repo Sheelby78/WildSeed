@@ -5,12 +5,44 @@ namespace WildSeed.Simulation.Tests.Contracts;
 public sealed class SimulationContractTests
 {
     [Fact]
-    public void Contract_version_is_3()
+    public void Contract_version_is_4()
     {
         Assert.Equal(1, SimulationContract.Version1);
         Assert.Equal(2, SimulationContract.Version2);
         Assert.Equal(3, SimulationContract.Version3);
-        Assert.Equal(3, SimulationContract.CurrentVersion);
+        Assert.Equal(4, SimulationContract.Version4);
+        Assert.Equal(4, SimulationContract.CurrentVersion);
+    }
+
+    [Fact]
+    public void SurvivalRulesV4_Constants_AreConfigured()
+    {
+        Assert.Equal(100, SurvivalRulesV4.MaturationAgeTicks);
+        Assert.Equal(450, SurvivalRulesV4.MatingEnergyThreshold);
+        Assert.Equal(150, SurvivalRulesV4.MatingCooldownTicks);
+        Assert.Equal(150, SurvivalRulesV4.MatingEnergyCost);
+        Assert.Equal(4, SurvivalRulesV4.HungerMetabolismCadenceTicks);
+        Assert.Equal(5000, SurvivalRulesV4.MaxPopulationCap);
+    }
+
+    [Fact]
+    public void OrganismBorn_Event_ContainsExpectedData()
+    {
+        var id = Guid.NewGuid();
+        var mom = Guid.NewGuid();
+        var dad = Guid.NewGuid();
+        var genome = new Domain.Organisms.Genome(1.5f, 1.2f, 10.0f);
+        var born = new Events.OrganismBorn(15, id, Domain.Organisms.Species.Herbivore, 10.0f, 20.0f, mom, dad, 2, genome);
+
+        Assert.Equal(15, born.Tick);
+        Assert.Equal(id, born.OrganismId);
+        Assert.Equal(Domain.Organisms.Species.Herbivore, born.Species);
+        Assert.Equal(10.0f, born.X);
+        Assert.Equal(20.0f, born.Y);
+        Assert.Equal(mom, born.MotherId);
+        Assert.Equal(dad, born.FatherId);
+        Assert.Equal(2, born.Generation);
+        Assert.Equal(genome, born.Genome);
     }
 
     [Fact]

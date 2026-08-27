@@ -7,4 +7,13 @@ public sealed record SimulationSnapshotResponse(long Tick, bool IsRunning, strin
     public static SimulationSnapshotResponse FromState(SimulationHosting.SimulationSession session) => session.CreateResponse();
 }
 
-public sealed record RuntimeOrganismDto(string Id, string Species, float X, float Y, string Action);
+public sealed record RuntimeOrganismDto(
+    string Id,
+    string Species,
+    float X,
+    float Y,
+    string Action,
+    GenomeDto Genome = default!,
+    string? MotherId = null,
+    string? FatherId = null,
+    int Generation = 1);

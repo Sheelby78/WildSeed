@@ -17,12 +17,22 @@ export interface TileData {
   vegetationDensity: number
 }
 
+export interface Genome {
+  speed: number
+  size: number
+  vision: number
+}
+
 export interface OrganismData {
   id: string
   species: 'Herbivore' | 'Carnivore'
   x: number
   y: number
   speed: number
+  genome?: Genome
+  motherId?: string | null
+  fatherId?: string | null
+  generation?: number
 }
 
 export interface WorldSnapshot {
@@ -39,6 +49,22 @@ export interface RuntimeOrganism {
   x: number
   y: number
   action: string
+  genome?: Genome
+  motherId?: string | null
+  fatherId?: string | null
+  generation?: number
+}
+
+export interface OrganismBornEvent {
+  tick: number
+  organismId: string
+  species: 'Herbivore' | 'Carnivore'
+  x: number
+  y: number
+  motherId?: string | null
+  fatherId?: string | null
+  generation: number
+  genome: Genome
 }
 
 export interface SimulationSnapshot {

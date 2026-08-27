@@ -25,6 +25,17 @@ function getTerrainColor(terrain: TileData['terrain'], vegetation: number): numb
   }
 }
 
+interface RenderOrganism {
+  id: string
+  species: 'Herbivore' | 'Carnivore'
+  currentX: number
+  currentY: number
+  targetX: number
+  targetY: number
+  action: string
+  genomeSize: number
+}
+
 export class WorldRenderer {
   private app: Application | null = null
   private worldContainer: Container | null = null
@@ -33,6 +44,7 @@ export class WorldRenderer {
   private camera = new CameraController()
   private containerElement: HTMLElement | null = null
   private isDestroyed = false
+  private organismsMap = new Map<string, RenderOrganism>()
 
   async init(container: HTMLElement): Promise<void> {
     this.containerElement = container
@@ -69,6 +81,10 @@ export class WorldRenderer {
     this.app.stage.addChild(this.worldContainer)
 
     this.camera.attach(this.worldContainer, app.canvas)
+
+    this.app.ticker.add(ticker => {
+      this.renderFrame(ticker.deltaTime)
+    })
   }
 
   renderWorld(snapshot: WorldSnapshot): void {
@@ -81,7 +97,10 @@ export class WorldRenderer {
     if (this.organismGraphics) {
       this.worldContainer.removeChild(this.organismGraphics)
       this.organismGraphics.destroy()
+      this.organismGraphics = null
     }
+
+    this.organismsMap.clear()
 
     this.terrainGraphics = new Graphics()
 
@@ -96,17 +115,17 @@ export class WorldRenderer {
 
     this.worldContainer.addChild(this.terrainGraphics)
 
-    if (snapshot.organisms.length > 0) {
-      this.organismGraphics = new Graphics()
-      const orgRadius = Math.max(2, TILE_SIZE * 0.25)
-
-      for (const org of snapshot.organisms) {
-        const color = org.species === 'Herbivore' ? 0xfacc15 : 0xef4444
-        this.organismGraphics.circle(org.x * TILE_SIZE, org.y * TILE_SIZE, orgRadius)
-        this.organismGraphics.fill({ color })
-      }
-
-      this.worldContainer.addChild(this.organismGraphics)
+    for (const org of snapshot.organisms) {
+      this.organismsMap.set(org.id, {
+        id: org.id,
+        species: org.species,
+        currentX: org.x,
+        currentY: org.y,
+        targetX: org.x,
+        targetY: org.y,
+        action: 'Explore',
+        genomeSize: org.genome?.size ?? 1.0,
+      })
     }
 
     const worldWidthPx = snapshot.width * TILE_SIZE
@@ -119,29 +138,122 @@ export class WorldRenderer {
 
   updateOrganisms(organisms: RuntimeOrganism[]): void {
     if (!this.worldContainer || this.isDestroyed) return
+
+    const incomingIds = new Set<string>()
+
+    for (const incoming of organisms) {
+      incomingIds.add(incoming.id)
+      const existing = this.organismsMap.get(incoming.id)
+      const genomeSize = incoming.genome?.size ?? 1.0
+
+      if (existing) {
+        existing.targetX = incoming.x
+        existing.targetY = incoming.y
+        existing.action = incoming.action
+        existing.species = incoming.species
+        existing.genomeSize = genomeSize
+      } else {
+        this.organismsMap.set(incoming.id, {
+          id: incoming.id,
+          species: incoming.species,
+          currentX: incoming.x,
+          currentY: incoming.y,
+          targetX: incoming.x,
+          targetY: incoming.y,
+          action: incoming.action,
+          genomeSize,
+        })
+      }
+    }
+
+    for (const id of this.organismsMap.keys()) {
+      if (!incomingIds.has(id)) {
+        this.organismsMap.delete(id)
+      }
+    }
+  }
+
+  private renderFrame(deltaTime: number): void {
+    if (!this.worldContainer || this.isDestroyed || this.organismsMap.size === 0) return
+
     if (!this.organismGraphics) {
       this.organismGraphics = new Graphics()
       this.worldContainer.addChild(this.organismGraphics)
     }
-    this.organismGraphics.clear()
 
-    for (const organism of organisms) {
+    const g = this.organismGraphics
+    g.clear()
+
+    const lerpFactor = Math.min(1.0, deltaTime * 0.25)
+
+    const fleeOrgs: Array<[number, number, number]> = []
+    const huntOrgs: Array<[number, number, number]> = []
+    const mateOrgs: Array<[number, number, number]> = []
+    const herbivores: Array<[number, number, number]> = []
+    const carnivores: Array<[number, number, number]> = []
+
+    for (const organism of this.organismsMap.values()) {
+      organism.currentX += (organism.targetX - organism.currentX) * lerpFactor
+      organism.currentY += (organism.targetY - organism.currentY) * lerpFactor
+
       const isCarnivore = organism.species === 'Carnivore'
-      const baseRadius = Math.max(2, TILE_SIZE * (isCarnivore ? 0.32 : 0.25))
-      const posX = organism.x * TILE_SIZE
-      const posY = organism.y * TILE_SIZE
+      const baseRadius = Math.max(1.5, TILE_SIZE * (isCarnivore ? 0.32 : 0.25) * organism.genomeSize)
+      const posX = organism.currentX * TILE_SIZE
+      const posY = organism.currentY * TILE_SIZE
 
       if (organism.action === 'Flee') {
-        this.organismGraphics.circle(posX, posY, baseRadius + 2.5)
-        this.organismGraphics.stroke({ color: 0x38bdf8, width: 1.5, alpha: 0.85 })
+        fleeOrgs.push([posX, posY, baseRadius + 2.5])
       } else if (organism.action === 'Hunt' || organism.action === 'Attack') {
-        this.organismGraphics.circle(posX, posY, baseRadius + 2.5)
-        this.organismGraphics.stroke({ color: 0xf97316, width: 1.5, alpha: 0.9 })
+        huntOrgs.push([posX, posY, baseRadius + 2.5])
+      } else if (organism.action === 'Mate') {
+        mateOrgs.push([posX, posY, baseRadius + 2.5])
       }
 
-      const color = isCarnivore ? 0xef4444 : 0xfacc15
-      this.organismGraphics.circle(posX, posY, baseRadius)
-      this.organismGraphics.fill({ color })
+      if (isCarnivore) {
+        carnivores.push([posX, posY, baseRadius])
+      } else {
+        herbivores.push([posX, posY, baseRadius])
+      }
+    }
+
+    if (fleeOrgs.length > 0) {
+      for (let i = 0; i < fleeOrgs.length; i++) {
+        const item = fleeOrgs[i]
+        g.circle(item[0], item[1], item[2])
+      }
+      g.stroke({ color: 0x38bdf8, width: 1.5, alpha: 0.85 })
+    }
+
+    if (huntOrgs.length > 0) {
+      for (let i = 0; i < huntOrgs.length; i++) {
+        const item = huntOrgs[i]
+        g.circle(item[0], item[1], item[2])
+      }
+      g.stroke({ color: 0xf97316, width: 1.5, alpha: 0.9 })
+    }
+
+    if (mateOrgs.length > 0) {
+      for (let i = 0; i < mateOrgs.length; i++) {
+        const item = mateOrgs[i]
+        g.circle(item[0], item[1], item[2])
+      }
+      g.stroke({ color: 0xec4899, width: 1.5, alpha: 0.9 })
+    }
+
+    if (herbivores.length > 0) {
+      for (let i = 0; i < herbivores.length; i++) {
+        const item = herbivores[i]
+        g.circle(item[0], item[1], item[2])
+      }
+      g.fill({ color: 0xfacc15 })
+    }
+
+    if (carnivores.length > 0) {
+      for (let i = 0; i < carnivores.length; i++) {
+        const item = carnivores[i]
+        g.circle(item[0], item[1], item[2])
+      }
+      g.fill({ color: 0xef4444 })
     }
   }
 
@@ -153,6 +265,10 @@ export class WorldRenderer {
         this.app.renderer.resize(width, height)
       }
     }
+  }
+
+  getFPS(): number {
+    return this.app ? Math.round(this.app.ticker.FPS) : 0
   }
 
   destroy(): void {

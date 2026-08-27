@@ -5,11 +5,14 @@ namespace WildSeed.Simulation.Engine;
 
 public sealed class SimulationState
 {
-    internal SimulationState(WorldMap world, VegetationResource[] vegetation, List<OrganismState> organisms)
+    private readonly bool[] _drinkingTiles;
+
+    internal SimulationState(WorldMap world, VegetationResource[] vegetation, List<OrganismState> organisms, bool[] drinkingTiles)
     {
         World = world;
         Vegetation = vegetation;
         Organisms = organisms;
+        _drinkingTiles = drinkingTiles;
     }
 
     public WorldMap World { get; }
@@ -18,4 +21,5 @@ public sealed class SimulationState
     internal List<OrganismState> Organisms { get; }
     public int LivingPopulation => Organisms.Count;
     public VegetationResource GetVegetation(int x, int y) => Vegetation[y * World.Width + x];
+    public bool IsDrinkingTile(int x, int y) => _drinkingTiles[y * World.Width + x];
 }

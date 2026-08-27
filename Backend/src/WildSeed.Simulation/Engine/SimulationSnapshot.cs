@@ -4,4 +4,15 @@ namespace WildSeed.Simulation.Engine;
 
 public sealed record SimulationSnapshot(long Tick, IReadOnlyList<SimulationOrganismSnapshot> Organisms);
 
-public sealed record SimulationOrganismSnapshot(Guid Id, Species Species, float X, float Y, int AgeTicks, OrganismNeeds Needs, OrganismAction Action);
+public sealed record SimulationOrganismSnapshot(
+    Guid Id,
+    Species Species,
+    float X,
+    float Y,
+    int AgeTicks,
+    OrganismNeeds Needs,
+    OrganismAction Action,
+    Genome Genome = default,
+    Guid? MotherId = null,
+    Guid? FatherId = null,
+    int Generation = 1);

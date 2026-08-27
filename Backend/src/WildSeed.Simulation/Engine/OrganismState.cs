@@ -4,7 +4,16 @@ namespace WildSeed.Simulation.Engine;
 
 public sealed class OrganismState
 {
-    public OrganismState(Guid id, Species species, Genome genome, float x, float y)
+    public OrganismState(
+        Guid id,
+        Species species,
+        Genome genome,
+        float x,
+        float y,
+        Guid? motherId = null,
+        Guid? fatherId = null,
+        int generation = 1,
+        int reproductionCooldownTicks = 0)
     {
         Id = id;
         Species = species;
@@ -13,6 +22,10 @@ public sealed class OrganismState
         Y = y;
         Needs = new OrganismNeeds();
         Action = OrganismAction.Explore;
+        MotherId = motherId;
+        FatherId = fatherId;
+        Generation = generation;
+        ReproductionCooldownTicks = reproductionCooldownTicks;
     }
 
     public Guid Id { get; }
@@ -23,4 +36,8 @@ public sealed class OrganismState
     public int AgeTicks { get; set; }
     public OrganismNeeds Needs { get; set; }
     public OrganismAction Action { get; set; }
+    public Guid? MotherId { get; }
+    public Guid? FatherId { get; }
+    public int Generation { get; }
+    public int ReproductionCooldownTicks { get; set; }
 }
