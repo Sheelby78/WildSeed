@@ -5,6 +5,7 @@ public static class SurvivalRulesV2
     public const int NeedScale = 1_000;
     public const int MetabolismHunger = 1;
     public const int MetabolismThirst = 1;
+    public const int ThirstMetabolismCadenceTicks = 4;
     public const int MovementEnergyCost = 3;
     public const int RestEnergyGain = 18;
     public const int DrinkThirstGain = 400;

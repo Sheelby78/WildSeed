@@ -9,7 +9,7 @@ public readonly record struct OrganismNeeds
     public int Thirst { get; }
     public int Energy { get; }
 
-    public OrganismNeeds(int hunger = 200, int thirst = 200, int energy = 800)
+    public OrganismNeeds(int hunger = 200, int thirst = 50, int energy = 800)
     {
         Hunger = Math.Clamp(hunger, Minimum, Maximum);
         Thirst = Math.Clamp(thirst, Minimum, Maximum);

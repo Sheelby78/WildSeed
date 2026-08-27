@@ -34,4 +34,28 @@ public sealed class HerbivoreSurvivalTests
         Assert.Equal(OrganismAction.Eat, state.Organisms[0].Action);
         Assert.True(state.Organisms[0].Needs.Hunger < 500);
     }
+
+    [Fact]
+    public void Organisms_AccumulateThirst_AtReducedCadence()
+    {
+        var tiles = new Tile[64, 64];
+        for (int y = 0; y < 64; y++)
+            for (int x = 0; x < 64; x++)
+                tiles[x, y] = new Tile(x, y, TerrainType.Grass, 0.0f);
+
+        var config = new WorldConfiguration(42, 64, 64, 1, 0, 0.0f, 0.1f, 0.05f, 0.1f);
+        var world = new WorldMap(config, tiles, [new Organism(Guid.NewGuid(), Species.Herbivore, new Genome(1.0f), 2.0f, 2.0f)]);
+        var state = SimulationStateFactory.Create(world);
+        state.Organisms[0].Needs = new OrganismNeeds(hunger: 0, thirst: 0, energy: 1000);
+
+        var engine = new SimulationEngine(state);
+
+        for (int tick = 1; tick <= SurvivalRulesV2.ThirstMetabolismCadenceTicks * 2; tick++)
+        {
+            engine.AdvanceTick();
+        }
+
+        Assert.Equal(2 * SurvivalRulesV2.MetabolismThirst, state.Organisms[0].Needs.Thirst);
+        Assert.Equal(SurvivalRulesV2.ThirstMetabolismCadenceTicks * 2 * SurvivalRulesV2.MetabolismHunger, state.Organisms[0].Needs.Hunger);
+    }
 }

@@ -24,7 +24,8 @@ public sealed class SimulationEngine
     {
         _state.Tick++;
         for (int i = 0; i < _state.Vegetation.Length; i++) _state.Vegetation[i] = _state.Vegetation[i].Regrow(SurvivalRulesV2.VegetationRegrowthPerTick);
-        foreach (var organism in _state.Organisms) { organism.AgeTicks++; organism.Needs = organism.Needs.Metabolize(SurvivalRulesV2.MetabolismHunger, SurvivalRulesV2.MetabolismThirst, 0); }
+        int thirstIncrement = _state.Tick % SurvivalRulesV2.ThirstMetabolismCadenceTicks == 0 ? SurvivalRulesV2.MetabolismThirst : 0;
+        foreach (var organism in _state.Organisms) { organism.AgeTicks++; organism.Needs = organism.Needs.Metabolize(SurvivalRulesV2.MetabolismHunger, thirstIncrement, 0); }
         var scored = _state.Organisms.OrderBy(item => item.Id).Select(organism => (Organism: organism, Intent: _scorer.Score(organism, _perception.Perceive(_state, organism)))).ToArray();
         foreach (var (organism, intent) in scored)
         {
