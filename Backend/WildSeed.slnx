@@ -8,6 +8,7 @@
     <Project Path="tests/WildSeed.Architecture.Tests/WildSeed.Architecture.Tests.csproj" />
     <Project Path="tests/WildSeed.Domain.Tests/WildSeed.Domain.Tests.csproj" />
     <Project Path="tests/WildSeed.Simulation.Tests/WildSeed.Simulation.Tests.csproj" />
+    <Project Path="tests/WildSeed.Api.Tests/WildSeed.Api.Tests.csproj" />
   </Folder>
   <Folder Name="/benchmarks/">
     <Project Path="benchmarks/WildSeed.Simulation.Benchmarks/WildSeed.Simulation.Benchmarks.csproj" />

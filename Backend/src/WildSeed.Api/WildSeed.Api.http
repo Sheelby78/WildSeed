@@ -1,6 +1,19 @@
-@WildSeed.Api_HostAddress = http://localhost:5062
+@WildSeed.Api_HostAddress = http://localhost:5184
 
-GET {{WildSeed.Api_HostAddress}}/weatherforecast/
+POST {{WildSeed.Api_HostAddress}}/api/world/generate
+Content-Type: application/json
 Accept: application/json
+
+{
+  "seed": 1337,
+  "width": 128,
+  "height": 128,
+  "initialHerbivores": 50,
+  "initialCarnivores": 10,
+  "vegetationDensity": 0.65,
+  "waterLevel": 0.45,
+  "mutationProbability": 0.05,
+  "mutationStrength": 0.1
+}
 
 ###
