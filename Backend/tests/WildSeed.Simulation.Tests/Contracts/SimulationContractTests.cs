@@ -7,7 +7,8 @@ public sealed class SimulationContractTests
     [Fact]
     public void Contract_version_is_1()
     {
-        Assert.Equal(1, SimulationContract.Version);
+        Assert.Equal(1, SimulationContract.Version1);
+        Assert.Equal(2, SimulationContract.CurrentVersion);
     }
 
     [Fact]

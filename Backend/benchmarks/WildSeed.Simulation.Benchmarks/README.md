@@ -4,6 +4,13 @@
 
 Executes headless performance benchmarks for Wild Seed simulation workloads. Validates throughput and allocation profiles against simulation timing contracts.
 
+## Workload: SurvivalLoopPopulation5000V2
+
+- **Population**: 5,000 active herbivores
+- **Logical Tick**: 100 ms
+- **Batch Size**: 20 ticks per invocation
+- **Status**: Production survival-loop evidence; the 200 ticks/sec target is informational for S-02
+
 ## Workload: SyntheticPopulation5000V1
 
 - **Population**: 5,000 active synthetic agents

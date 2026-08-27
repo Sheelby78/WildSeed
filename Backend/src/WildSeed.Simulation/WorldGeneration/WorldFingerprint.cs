@@ -1,5 +1,6 @@
 using WildSeed.Domain.Organisms;
 using WildSeed.Domain.World;
+using WildSeed.Simulation.Contracts;
 using WildSeed.Simulation.Determinism;
 
 namespace WildSeed.Simulation.WorldGeneration;
@@ -11,7 +12,7 @@ public static class WorldFingerprint
         ArgumentNullException.ThrowIfNull(world);
 
         using var writer = new CanonicalStateWriter();
-        writer.WriteHeader((ulong)(uint)world.Configuration.Seed, tick: 0);
+        writer.WriteHeader((ulong)(uint)world.Configuration.Seed, tick: 0, SimulationContract.Version1);
         writer.WriteInt32(world.Width);
         writer.WriteInt32(world.Height);
 
@@ -40,6 +41,6 @@ public static class WorldFingerprint
                 w.WriteBoolean(o.IsAlive);
             });
 
-        return StateFingerprint.Compute(writer);
+        return StateFingerprint.Compute(writer, SimulationContract.Version1);
     }
 }

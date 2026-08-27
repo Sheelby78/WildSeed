@@ -111,6 +111,86 @@
   pointer-events: none;
 }
 
+.survival-telemetry {
+  position: absolute;
+  z-index: 4;
+  right: 30px;
+  bottom: 94px;
+  display: grid;
+  gap: 6px;
+  width: 280px;
+  padding: 11px 14px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: rgba(10, 15, 12, 0.75);
+  border: 1px solid rgba(206, 226, 212, 0.14);
+  border-radius: 9px;
+  backdrop-filter: blur(12px);
+}
+
+.telemetry-title {
+  color: rgba(213, 225, 216, 0.55);
+  font-size: 8px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.telemetry-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 10px;
+}
+
+.telemetry-values strong {
+  color: var(--accent-bright);
+  font-weight: 600;
+}
+
+.simulation-controls {
+  position: absolute;
+  z-index: 4;
+  top: 92px;
+  right: 30px;
+  display: grid;
+  gap: 8px;
+  width: 190px;
+  pointer-events: auto;
+}
+
+.simulation-controls .btn-primary {
+  justify-content: center;
+}
+
+.speed-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.speed-buttons button {
+  min-height: 28px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: rgba(10, 15, 12, 0.84);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.speed-buttons button:hover:not(:disabled),
+.speed-buttons .speed-active {
+  color: var(--accent-bright);
+  border-color: rgba(167, 212, 111, 0.65);
+}
+
+.speed-buttons button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .metric-item span,
 .metric-item strong {
   display: block;
@@ -269,6 +349,16 @@
   .world-metrics {
     right: 20px;
     bottom: 20px;
+  }
+
+  .simulation-controls {
+    top: 82px;
+    right: 20px;
+  }
+
+  .survival-telemetry {
+    right: 20px;
+    bottom: 88px;
   }
 
   .error-banner {

@@ -33,7 +33,32 @@ export interface WorldSnapshot {
   fingerprint: string
 }
 
-export async function generateWorld(config: WorldConfig): Promise<WorldSnapshot> {
+export interface RuntimeOrganism {
+  id: string
+  species: 'Herbivore' | 'Carnivore'
+  x: number
+  y: number
+  action: string
+}
+
+export interface SimulationSnapshot {
+  tick: number
+  isRunning: boolean
+  speed: string
+  fingerprint: string
+  population: number
+  actions: Record<string, number>
+  deaths: Record<string, number>
+  organisms: RuntimeOrganism[]
+}
+
+export interface GeneratedWorld {
+  sessionToken: string
+  staticWorld: WorldSnapshot
+  snapshot: SimulationSnapshot
+}
+
+export async function generateWorld(config: WorldConfig): Promise<GeneratedWorld> {
   const response = await fetch('/api/world/generate', {
     method: 'POST',
     headers: {

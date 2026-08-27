@@ -11,7 +11,7 @@ public sealed class DeterministicProbe
     private ulong _rngState;
     private long _tick;
 
-    public DeterministicProbe(ulong seed, int initialPopulation = 5, int contractVersion = SimulationContract.Version)
+    public DeterministicProbe(ulong seed, int initialPopulation = 5, int contractVersion = SimulationContract.Version1)
     {
         _seed = seed;
         _contractVersion = contractVersion;
