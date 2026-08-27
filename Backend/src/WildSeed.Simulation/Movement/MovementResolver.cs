@@ -23,7 +23,8 @@ public sealed class MovementResolver
 
     public void Move(SimulationState state, OrganismState organism, (int X, int Y)? target, bool isFleeing = false, float speedMultiplier = 1.0f)
     {
-        float distance = organism.Genome.Speed * speedMultiplier * (float)SimulationContract.LogicalTickDuration.TotalSeconds;
+        float effectiveSpeed = organism.Genome.Speed / MathF.Sqrt(organism.Genome.Size);
+        float distance = effectiveSpeed * speedMultiplier * (float)SimulationContract.LogicalTickDuration.TotalSeconds;
 
         if (target is { } tile)
         {

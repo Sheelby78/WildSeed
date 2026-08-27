@@ -17,7 +17,9 @@ public sealed class VegetationResolver
             int consumed = 0;
             foreach (var (id, grant) in grants)
             {
-                organismById[id].Needs = organismById[id].Needs.Eat(grant * Contracts.SurvivalRulesV2.FoodNeedPerVegetationUnit);
+                int hungerGain = grant * Contracts.SurvivalRulesV4.FoodNeedPerVegetationUnit;
+                int energyGain = grant * Contracts.SurvivalRulesV4.VegetationEnergyGainPerUnit;
+                organismById[id].Needs = organismById[id].Needs.Feed(hungerGain, energyGain);
                 consumed += grant;
             }
             state.Vegetation[index] = resource.Consume(consumed);

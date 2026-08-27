@@ -30,14 +30,35 @@ public sealed class OrganismTests
     }
 
     [Fact]
-    public void Genome_ClampsSpeedWithinBounds()
+    public void Genome_ClampsTraitsWithinBounds()
     {
-        var low = new Genome(0.01f);
-        var high = new Genome(100.0f);
-        var normal = new Genome(2.5f);
+        var low = new Genome(0.01f, 0.01f, 0.5f);
+        var high = new Genome(100.0f, 100.0f, 100.0f);
+        var normal = new Genome(2.5f, 1.8f, 12.0f);
 
         Assert.Equal(0.1f, low.Speed);
+        Assert.Equal(0.1f, low.Size);
+        Assert.Equal(1.0f, low.Vision);
+
         Assert.Equal(10.0f, high.Speed);
+        Assert.Equal(10.0f, high.Size);
+        Assert.Equal(50.0f, high.Vision);
+
         Assert.Equal(2.5f, normal.Speed);
+        Assert.Equal(1.8f, normal.Size);
+        Assert.Equal(12.0f, normal.Vision);
+    }
+
+    [Fact]
+    public void Constructor_WithLineage_SetsLineageProperties()
+    {
+        var id = Guid.NewGuid();
+        var motherId = Guid.NewGuid();
+        var fatherId = Guid.NewGuid();
+        var organism = new Organism(id, Species.Carnivore, new Genome(1.2f, 1.5f, 10.0f), 5.0f, 8.0f, true, motherId, fatherId, 3);
+
+        Assert.Equal(motherId, organism.MotherId);
+        Assert.Equal(fatherId, organism.FatherId);
+        Assert.Equal(3, organism.Generation);
     }
 }

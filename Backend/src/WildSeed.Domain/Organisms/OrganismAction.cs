@@ -10,5 +10,6 @@ public enum OrganismAction : byte
     Rest,
     Hunt,
     Attack,
-    Flee
+    Flee,
+    Mate
 }

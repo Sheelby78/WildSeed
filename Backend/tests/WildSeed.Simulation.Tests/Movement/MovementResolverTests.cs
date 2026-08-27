@@ -38,6 +38,6 @@ public sealed class MovementResolverTests
         }
 
         float distanceTraveled = MathF.Sqrt(MathF.Pow(organism.X - startX, 2) + MathF.Pow(organism.Y - startY, 2));
-        Assert.True(distanceTraveled > 0.5f);
+        Assert.True(distanceTraveled > 0.5f, $"Distance: {distanceTraveled}, Start: ({startX}, {startY}), End: ({organism.X}, {organism.Y}), Action: {organism.Action}, Energy: {organism.Needs.Energy}, Hunger: {organism.Needs.Hunger}");
     }
 }

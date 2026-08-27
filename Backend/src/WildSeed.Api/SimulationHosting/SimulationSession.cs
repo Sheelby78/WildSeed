@@ -40,7 +40,18 @@ public sealed class SimulationSession
             int carnivores = snapshot.Organisms.Count(item => item.Species == Species.Carnivore);
             return new SimulationSnapshotResponse(snapshot.Tick, IsRunning, Speed, _cachedFingerprint, snapshot.Organisms.Count,
                 herbivores, carnivores,
-                snapshot.Organisms.GroupBy(item => item.Action.ToString()).ToDictionary(group => group.Key, group => group.Count()), new Dictionary<string, int>(_deathCounts), snapshot.Organisms.Select(item => new RuntimeOrganismDto(item.Id.ToString(), item.Species.ToString(), item.X, item.Y, item.Action.ToString())).ToArray());
+                snapshot.Organisms.GroupBy(item => item.Action.ToString()).ToDictionary(group => group.Key, group => group.Count()),
+                new Dictionary<string, int>(_deathCounts),
+                snapshot.Organisms.Select(item => new RuntimeOrganismDto(
+                    item.Id.ToString(),
+                    item.Species.ToString(),
+                    item.X,
+                    item.Y,
+                    item.Action.ToString(),
+                    new GenomeDto(item.Genome.Speed, item.Genome.Size, item.Genome.Vision),
+                    item.MotherId?.ToString(),
+                    item.FatherId?.ToString(),
+                    item.Generation)).ToArray());
         }
     }
     public SimulationStatusResponse Status() { var snapshot = CreateResponse(); return new SimulationStatusResponse(snapshot.Tick, snapshot.IsRunning, snapshot.Speed, snapshot.Fingerprint, snapshot.Population); }

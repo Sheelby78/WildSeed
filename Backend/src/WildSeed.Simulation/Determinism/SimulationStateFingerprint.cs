@@ -25,6 +25,10 @@ public static class SimulationStateFingerprint
             Span<byte> bytes = stackalloc byte[16]; organism.Id.TryWriteBytes(bytes);
             target.WriteBytes(bytes).WriteByte((byte)organism.Species).WriteFloat(organism.Genome.Speed).WriteFloat(organism.X).WriteFloat(organism.Y)
                 .WriteInt32(organism.AgeTicks).WriteInt32(organism.Needs.Hunger).WriteInt32(organism.Needs.Thirst).WriteInt32(organism.Needs.Energy).WriteByte((byte)organism.Action);
+            if (version >= SimulationContract.Version4)
+            {
+                target.WriteFloat(organism.Genome.Size).WriteFloat(organism.Genome.Vision).WriteInt32(organism.Generation).WriteInt32(organism.ReproductionCooldownTicks);
+            }
         });
         return StateFingerprint.Compute(writer, version);
     }

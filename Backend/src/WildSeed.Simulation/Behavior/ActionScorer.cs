@@ -14,9 +14,13 @@ public sealed class ActionScorer
             (OrganismAction.Explore, 1, null, null)
         };
 
-        if (organism.Needs.Energy < SurvivalRulesV3.CriticalNeed / 3)
+        if (organism.Needs.Energy < 250)
         {
-            candidates.Add((OrganismAction.Rest, SurvivalRulesV3.CriticalNeed - organism.Needs.Energy, null, null));
+            candidates.Add((OrganismAction.Rest, 750 - organism.Needs.Energy, null, null));
+        }
+        else if (organism.Needs.Energy < 800 && organism.Needs.Hunger < SurvivalRulesV3.ActionNeedThreshold && organism.Needs.Thirst < SurvivalRulesV3.ActionNeedThreshold)
+        {
+            candidates.Add((OrganismAction.Rest, (800 - organism.Needs.Energy) / 4 + 10, null, null));
         }
 
         if (organism.Needs.Thirst >= SurvivalRulesV3.ActionNeedThreshold && perception.WaterTile is { } water)
@@ -28,7 +32,7 @@ public sealed class ActionScorer
         {
             if (organism.Needs.Hunger >= SurvivalRulesV3.ActionNeedThreshold && perception.FoodTile is { } food)
             {
-                candidates.Add((IsAt(organism, food) ? OrganismAction.Eat : OrganismAction.SeekFood, organism.Needs.Hunger, food, null));
+                candidates.Add((IsAt(organism, food) ? OrganismAction.Eat : OrganismAction.SeekFood, organism.Needs.Hunger * 2, food, null));
             }
 
             if (perception.NearestThreat is { } threat && organism.Needs.Thirst < SurvivalRulesV3.CriticalNeed && organism.Needs.Hunger < SurvivalRulesV3.CriticalNeed)
@@ -60,6 +64,18 @@ public sealed class ActionScorer
             }
         }
 
+        if (perception.NearestMate is { } mate && perception.MateId is { } mateId &&
+            organism.AgeTicks >= SurvivalRulesV4.MaturationAgeTicks &&
+            organism.ReproductionCooldownTicks <= 0 &&
+            organism.Needs.Energy >= SurvivalRulesV4.MatingEnergyThreshold &&
+            organism.Needs.Hunger < SurvivalRulesV4.CriticalNeed &&
+            organism.Needs.Thirst < SurvivalRulesV4.CriticalNeed)
+        {
+            var mateTile = ((int)MathF.Floor(mate.X), (int)MathF.Floor(mate.Y));
+            int matingScore = 600 + (organism.Needs.Energy - SurvivalRulesV4.MatingEnergyThreshold) / 2;
+            candidates.Add((OrganismAction.Mate, matingScore, mateTile, mateId));
+        }
+
         var winner = candidates
             .OrderByDescending(candidate => candidate.Score)
             .ThenBy(candidate => Priority(candidate.Action))
@@ -77,9 +93,10 @@ public sealed class ActionScorer
         OrganismAction.Eat => 2,
         OrganismAction.Flee => 3,
         OrganismAction.Hunt => 4,
-        OrganismAction.SeekWater => 5,
-        OrganismAction.SeekFood => 6,
-        OrganismAction.Rest => 7,
-        _ => 8
+        OrganismAction.Mate => 5,
+        OrganismAction.SeekWater => 6,
+        OrganismAction.SeekFood => 7,
+        OrganismAction.Rest => 8,
+        _ => 9
     };
 }

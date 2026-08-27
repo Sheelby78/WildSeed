@@ -14,35 +14,53 @@ public sealed class PerceptionService
         (int X, int Y)? water = null;
         float foodDistance = float.PositiveInfinity;
         float waterDistance = float.PositiveInfinity;
-        int centerX = (int)MathF.Floor(organism.X);
-        int centerY = (int)MathF.Floor(organism.Y);
-        int radius = SurvivalRulesV3.PerceptionRadius;
 
-        for (int y = Math.Max(0, centerY - radius); y <= Math.Min(state.World.Height - 1, centerY + radius); y++)
-        for (int x = Math.Max(0, centerX - radius); x <= Math.Min(state.World.Width - 1, centerX + radius); x++)
+        bool needFood = organism.Species == Species.Herbivore && organism.Needs.Hunger >= SurvivalRulesV3.ActionNeedThreshold;
+        bool needWater = organism.Needs.Thirst >= SurvivalRulesV3.ActionNeedThreshold;
+
+        if (needFood || needWater)
         {
-            float distance = DistanceSquared(organism.X, organism.Y, x + 0.5f, y + 0.5f);
-            if (organism.Species == Species.Herbivore && state.GetVegetation(x, y).Current > 0 && IsCloser(distance, foodDistance, (x, y), food))
+            int centerX = (int)MathF.Floor(organism.X);
+            int centerY = (int)MathF.Floor(organism.Y);
+            int radius = (int)MathF.Ceiling(organism.Genome.Vision);
+            float visionSq = organism.Genome.Vision * organism.Genome.Vision;
+
+            int minY = Math.Max(0, centerY - radius);
+            int maxY = Math.Min(state.World.Height - 1, centerY + radius);
+            int minX = Math.Max(0, centerX - radius);
+            int maxX = Math.Min(state.World.Width - 1, centerX + radius);
+
+            for (int y = minY; y <= maxY; y++)
+            for (int x = minX; x <= maxX; x++)
             {
-                food = (x, y);
-                foodDistance = distance;
-            }
-            if (IsDrinkingTile(state, x, y) && IsCloser(distance, waterDistance, (x, y), water))
-            {
-                water = (x, y);
-                waterDistance = distance;
+                float distance = DistanceSquared(organism.X, organism.Y, x + 0.5f, y + 0.5f);
+                if (distance <= visionSq)
+                {
+                    if (needFood && state.GetVegetation(x, y).Current > 0 && IsCloser(distance, foodDistance, (x, y), food))
+                    {
+                        food = (x, y);
+                        foodDistance = distance;
+                    }
+                    if (needWater && state.IsDrinkingTile(x, y) && IsCloser(distance, waterDistance, (x, y), water))
+                    {
+                        water = (x, y);
+                        waterDistance = distance;
+                    }
+                }
             }
         }
 
         (float X, float Y)? nearestThreat = null;
         (float X, float Y)? nearestPrey = null;
         Guid? preyId = null;
+        (float X, float Y)? nearestMate = null;
+        Guid? mateId = null;
 
         if (spatialGrid is not null)
         {
             if (organism.Species == Species.Herbivore)
             {
-                var threat = spatialGrid.FindNearest(organism.X, organism.Y, SurvivalRulesV3.DangerPerceptionRadius, Species.Carnivore, state.Organisms);
+                var threat = spatialGrid.FindNearest(organism.X, organism.Y, organism.Genome.Vision, Species.Carnivore, state.Organisms);
                 if (threat is not null)
                 {
                     nearestThreat = (threat.X, threat.Y);
@@ -50,16 +68,30 @@ public sealed class PerceptionService
             }
             else if (organism.Species == Species.Carnivore)
             {
-                var prey = spatialGrid.FindNearest(organism.X, organism.Y, SurvivalRulesV3.HuntPerceptionRadius, Species.Herbivore, state.Organisms);
+                var prey = spatialGrid.FindNearest(organism.X, organism.Y, organism.Genome.Vision, Species.Herbivore, state.Organisms);
                 if (prey is not null)
                 {
                     nearestPrey = (prey.X, prey.Y);
                     preyId = prey.Id;
                 }
             }
+
+            if (organism.AgeTicks >= SurvivalRulesV4.MaturationAgeTicks &&
+                organism.ReproductionCooldownTicks <= 0 &&
+                organism.Needs.Energy >= SurvivalRulesV4.MatingEnergyThreshold &&
+                organism.Needs.Hunger < SurvivalRulesV4.CriticalNeed &&
+                organism.Needs.Thirst < SurvivalRulesV4.CriticalNeed)
+            {
+                var mate = spatialGrid.FindNearestEligibleMate(organism.X, organism.Y, organism.Genome.Vision, organism.Species, organism.Id, state.Organisms);
+                if (mate is not null)
+                {
+                    nearestMate = (mate.X, mate.Y);
+                    mateId = mate.Id;
+                }
+            }
         }
 
-        return new PerceptionResult(food, water, nearestThreat, nearestPrey, preyId);
+        return new PerceptionResult(food, water, nearestThreat, nearestPrey, preyId, nearestMate, mateId);
     }
 
     private static float DistanceSquared(float x1, float y1, float x2, float y2)
@@ -72,16 +104,5 @@ public sealed class PerceptionService
     private static bool IsCloser(float distance, float currentDistance, (int X, int Y) candidate, (int X, int Y)? current) =>
         distance < currentDistance || (distance == currentDistance && (current is null || candidate.Y < current.Value.Y || candidate.Y == current.Value.Y && candidate.X < current.Value.X));
 
-    private static readonly (int Dx, int Dy)[] CardinalOffsets = [(0, -1), (-1, 0), (1, 0), (0, 1)];
-
-    public static bool IsDrinkingTile(SimulationState state, int x, int y)
-    {
-        if (state.World.Tiles[x, y].Terrain is TerrainType.DeepWater or TerrainType.ShallowWater) return false;
-        foreach (var (dx, dy) in CardinalOffsets)
-        {
-            int nx = x + dx; int ny = y + dy;
-            if (nx >= 0 && ny >= 0 && nx < state.World.Width && ny < state.World.Height && state.World.Tiles[nx, ny].Terrain is TerrainType.DeepWater or TerrainType.ShallowWater) return true;
-        }
-        return false;
-    }
+    public static bool IsDrinkingTile(SimulationState state, int x, int y) => state.IsDrinkingTile(x, y);
 }

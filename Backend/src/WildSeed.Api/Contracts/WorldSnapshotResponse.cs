@@ -38,7 +38,11 @@ public sealed record WorldSnapshotResponse(
                 Species: org.Species.ToString(),
                 X: org.X,
                 Y: org.Y,
-                Speed: org.Genome.Speed);
+                Speed: org.Genome.Speed,
+                Genome: new GenomeDto(org.Genome.Speed, org.Genome.Size, org.Genome.Vision),
+                MotherId: org.MotherId?.ToString(),
+                FatherId: org.FatherId?.ToString(),
+                Generation: org.Generation);
         }
 
         return new WorldSnapshotResponse(
@@ -52,4 +56,13 @@ public sealed record WorldSnapshotResponse(
 
 public sealed record TileDto(int X, int Y, string Terrain, float VegetationDensity);
 
-public sealed record OrganismDto(string Id, string Species, float X, float Y, float Speed);
+public sealed record OrganismDto(
+    string Id,
+    string Species,
+    float X,
+    float Y,
+    float Speed,
+    GenomeDto Genome = default!,
+    string? MotherId = null,
+    string? FatherId = null,
+    int Generation = 1);

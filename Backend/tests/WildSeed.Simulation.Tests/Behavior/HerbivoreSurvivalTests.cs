@@ -56,6 +56,6 @@ public sealed class HerbivoreSurvivalTests
         }
 
         Assert.Equal(2 * SurvivalRulesV2.MetabolismThirst, state.Organisms[0].Needs.Thirst);
-        Assert.Equal(SurvivalRulesV2.ThirstMetabolismCadenceTicks * 2 * SurvivalRulesV2.MetabolismHunger, state.Organisms[0].Needs.Hunger);
+        Assert.Equal(2 * SurvivalRulesV4.MetabolismHunger, state.Organisms[0].Needs.Hunger);
     }
 }

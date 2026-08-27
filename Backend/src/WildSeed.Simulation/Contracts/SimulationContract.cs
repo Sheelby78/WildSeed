@@ -8,7 +8,9 @@ public static class SimulationContract
 
     public const int Version3 = 3;
 
-    public const int CurrentVersion = Version3;
+    public const int Version4 = 4;
+
+    public const int CurrentVersion = Version4;
 
     public const int LogicalTickMilliseconds = 100;
 
