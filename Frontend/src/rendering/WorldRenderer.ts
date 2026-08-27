@@ -186,73 +186,75 @@ export class WorldRenderer {
 
     const lerpFactor = Math.min(1.0, deltaTime * 0.25)
 
-    const fleeOrgs: Array<[number, number, number]> = []
-    const huntOrgs: Array<[number, number, number]> = []
-    const mateOrgs: Array<[number, number, number]> = []
-    const herbivores: Array<[number, number, number]> = []
-    const carnivores: Array<[number, number, number]> = []
-
     for (const organism of this.organismsMap.values()) {
       organism.currentX += (organism.targetX - organism.currentX) * lerpFactor
       organism.currentY += (organism.targetY - organism.currentY) * lerpFactor
-
-      const isCarnivore = organism.species === 'Carnivore'
-      const baseRadius = Math.max(1.5, TILE_SIZE * (isCarnivore ? 0.32 : 0.25) * organism.genomeSize)
-      const posX = organism.currentX * TILE_SIZE
-      const posY = organism.currentY * TILE_SIZE
-
-      if (organism.action === 'Flee') {
-        fleeOrgs.push([posX, posY, baseRadius + 2.5])
-      } else if (organism.action === 'Hunt' || organism.action === 'Attack') {
-        huntOrgs.push([posX, posY, baseRadius + 2.5])
-      } else if (organism.action === 'Mate') {
-        mateOrgs.push([posX, posY, baseRadius + 2.5])
-      }
-
-      if (isCarnivore) {
-        carnivores.push([posX, posY, baseRadius])
-      } else {
-        herbivores.push([posX, posY, baseRadius])
-      }
     }
 
-    if (fleeOrgs.length > 0) {
-      for (let i = 0; i < fleeOrgs.length; i++) {
-        const item = fleeOrgs[i]
-        g.circle(item[0], item[1], item[2])
+    let hasFlee = false
+    let hasHunt = false
+    let hasMate = false
+    let hasHerb = false
+    let hasCarn = false
+
+    // Action rings
+    for (const organism of this.organismsMap.values()) {
+      if (organism.action === 'Flee') {
+        const isCarnivore = organism.species === 'Carnivore'
+        const baseRadius = Math.max(1.5, TILE_SIZE * (isCarnivore ? 0.32 : 0.25) * organism.genomeSize)
+        g.circle(organism.currentX * TILE_SIZE, organism.currentY * TILE_SIZE, baseRadius + 2.5)
+        hasFlee = true
       }
+    }
+    if (hasFlee) {
       g.stroke({ color: 0x38bdf8, width: 1.5, alpha: 0.85 })
     }
 
-    if (huntOrgs.length > 0) {
-      for (let i = 0; i < huntOrgs.length; i++) {
-        const item = huntOrgs[i]
-        g.circle(item[0], item[1], item[2])
+    for (const organism of this.organismsMap.values()) {
+      if (organism.action === 'Hunt' || organism.action === 'Attack') {
+        const isCarnivore = organism.species === 'Carnivore'
+        const baseRadius = Math.max(1.5, TILE_SIZE * (isCarnivore ? 0.32 : 0.25) * organism.genomeSize)
+        g.circle(organism.currentX * TILE_SIZE, organism.currentY * TILE_SIZE, baseRadius + 2.5)
+        hasHunt = true
       }
+    }
+    if (hasHunt) {
       g.stroke({ color: 0xf97316, width: 1.5, alpha: 0.9 })
     }
 
-    if (mateOrgs.length > 0) {
-      for (let i = 0; i < mateOrgs.length; i++) {
-        const item = mateOrgs[i]
-        g.circle(item[0], item[1], item[2])
+    for (const organism of this.organismsMap.values()) {
+      if (organism.action === 'Mate') {
+        const isCarnivore = organism.species === 'Carnivore'
+        const baseRadius = Math.max(1.5, TILE_SIZE * (isCarnivore ? 0.32 : 0.25) * organism.genomeSize)
+        g.circle(organism.currentX * TILE_SIZE, organism.currentY * TILE_SIZE, baseRadius + 2.5)
+        hasMate = true
       }
+    }
+    if (hasMate) {
       g.stroke({ color: 0xec4899, width: 1.5, alpha: 0.9 })
     }
 
-    if (herbivores.length > 0) {
-      for (let i = 0; i < herbivores.length; i++) {
-        const item = herbivores[i]
-        g.circle(item[0], item[1], item[2])
+    // Herbivore bodies
+    for (const organism of this.organismsMap.values()) {
+      if (organism.species === 'Herbivore') {
+        const baseRadius = Math.max(1.5, TILE_SIZE * 0.25 * organism.genomeSize)
+        g.circle(organism.currentX * TILE_SIZE, organism.currentY * TILE_SIZE, baseRadius)
+        hasHerb = true
       }
+    }
+    if (hasHerb) {
       g.fill({ color: 0xfacc15 })
     }
 
-    if (carnivores.length > 0) {
-      for (let i = 0; i < carnivores.length; i++) {
-        const item = carnivores[i]
-        g.circle(item[0], item[1], item[2])
+    // Carnivore bodies
+    for (const organism of this.organismsMap.values()) {
+      if (organism.species === 'Carnivore') {
+        const baseRadius = Math.max(1.5, TILE_SIZE * 0.32 * organism.genomeSize)
+        g.circle(organism.currentX * TILE_SIZE, organism.currentY * TILE_SIZE, baseRadius)
+        hasCarn = true
       }
+    }
+    if (hasCarn) {
       g.fill({ color: 0xef4444 })
     }
   }

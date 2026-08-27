@@ -17,11 +17,12 @@ public sealed class SimulationContractTests
     [Fact]
     public void SurvivalRulesV4_Constants_AreConfigured()
     {
-        Assert.Equal(100, SurvivalRulesV4.MaturationAgeTicks);
-        Assert.Equal(450, SurvivalRulesV4.MatingEnergyThreshold);
-        Assert.Equal(150, SurvivalRulesV4.MatingCooldownTicks);
-        Assert.Equal(150, SurvivalRulesV4.MatingEnergyCost);
-        Assert.Equal(4, SurvivalRulesV4.HungerMetabolismCadenceTicks);
+        Assert.Equal(200, SurvivalRulesV4.MaturationAgeTicks);
+        Assert.Equal(600, SurvivalRulesV4.MatingEnergyThreshold);
+        Assert.Equal(1000, SurvivalRulesV4.MatingCooldownTicks);
+        Assert.Equal(200, SurvivalRulesV4.MatingEnergyCost);
+        Assert.Equal(3, SurvivalRulesV4.HungerMetabolismCadenceTicks);
+        Assert.Equal(3, SurvivalRulesV4.ThirstMetabolismCadenceTicks);
         Assert.Equal(5000, SurvivalRulesV4.MaxPopulationCap);
     }
 

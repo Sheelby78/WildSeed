@@ -25,11 +25,11 @@ public static class PredationResolver
             {
                 if (organismMap.TryGetValue(targetId, out var targetPrey))
                 {
-                    attacker.Needs = attacker.Needs.Feed(SurvivalRulesV3.PredationHungerGain, SurvivalRulesV3.PredationEnergyGain);
+                    attacker.Needs = attacker.Needs.Feed(SurvivalRulesV4.PredationHungerGain, SurvivalRulesV4.PredationEnergyGain);
 
                     if (deadSet.Add(targetId))
                     {
-                        deaths.Add(new OrganismDied(state.Tick, targetPrey.Id, targetPrey.Species, DeathCause.Predation, targetPrey.X, targetPrey.Y));
+                        deaths.Add(new OrganismDied(state.Tick, targetPrey.Id, targetPrey.Species, DeathCause.Predation, targetPrey.X, targetPrey.Y, targetPrey.AgeTicks));
                     }
                 }
             }

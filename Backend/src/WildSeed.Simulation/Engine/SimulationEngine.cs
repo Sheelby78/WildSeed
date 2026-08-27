@@ -7,6 +7,7 @@ using WildSeed.Simulation.Movement;
 using WildSeed.Simulation.Perception;
 using WildSeed.Simulation.Resources;
 using WildSeed.Simulation.Spatial;
+using WildSeed.Simulation.Statistics;
 
 namespace WildSeed.Simulation.Engine;
 
@@ -18,14 +19,17 @@ public sealed class SimulationEngine
     private readonly MovementResolver _movement = new();
     private readonly VegetationResolver _vegetation = new();
     private readonly SpatialGrid _spatialGrid;
+    private readonly EcosystemStatisticsTracker _statistics;
 
-    public SimulationEngine(SimulationState state)
+    public SimulationEngine(SimulationState state, EcosystemStatisticsTracker? statistics = null)
     {
         _state = state;
         _spatialGrid = new SpatialGrid(state.World.Width, state.World.Height);
+        _statistics = statistics ?? new EcosystemStatisticsTracker();
     }
 
     public SimulationState State => _state;
+    public EcosystemStatisticsTracker Statistics => _statistics;
 
     public SimulationSnapshot Snapshot() => new(
         _state.Tick,
@@ -91,12 +95,12 @@ public sealed class SimulationEngine
             }
             else if (intent.Action == OrganismAction.Hunt)
             {
-                _movement.Move(_state, organism, intent.Target, isFleeing: false, speedMultiplier: SurvivalRulesV3.SprintSpeedMultiplier);
+                _movement.Move(_state, organism, intent.Target, isFleeing: false, speedMultiplier: SurvivalRulesV4.HuntSpeedMultiplier);
                 organism.Needs = organism.Needs.Metabolize(0, 0, sprintEnergyCost);
             }
             else if (intent.Action == OrganismAction.Flee)
             {
-                _movement.Move(_state, organism, intent.Target, isFleeing: true, speedMultiplier: SurvivalRulesV3.SprintSpeedMultiplier);
+                _movement.Move(_state, organism, intent.Target, isFleeing: true, speedMultiplier: SurvivalRulesV4.FleeSpeedMultiplier);
                 organism.Needs = organism.Needs.Metabolize(0, 0, sprintEnergyCost);
             }
             else if (intent.Action == OrganismAction.Attack)
@@ -117,6 +121,11 @@ public sealed class SimulationEngine
         var predationDeaths = PredationResolver.Resolve(_state, scored);
         _vegetation.Resolve(_state, scored.Select(item => item.Intent));
         var environmentalDeaths = DeathResolver.Resolve(_state);
+
+        _statistics.RecordBirths(births);
+        _statistics.RecordDeaths(predationDeaths);
+        _statistics.RecordDeaths(environmentalDeaths.Cast<OrganismDied>().ToArray());
+        _statistics.SampleTick(_state);
 
         var allEvents = predationDeaths
             .Concat(environmentalDeaths.Cast<OrganismDied>())

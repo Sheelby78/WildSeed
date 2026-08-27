@@ -5,6 +5,7 @@ import { WorldRenderer } from '@/rendering/WorldRenderer'
 import { SimulationConnection } from '@/transport/SimulationConnection'
 import { generateWorld, type GeneratedWorld, type SimulationSnapshot, type WorldConfig } from '@/transport/WorldApi'
 import { SimulationControls } from '@/features/world/SimulationControls'
+import { StatisticsPanel } from '@/features/statistics/StatisticsPanel'
 import './globals.css'
 import './App.css'
 
@@ -21,6 +22,7 @@ export function App() {
   const [running, setRunning] = useState(false)
   const [speed, setSpeed] = useState('1x')
   const [fps, setFps] = useState(0)
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false)
 
   const handleGenerate = useCallback(async (config: WorldConfig) => {
     setIsLoading(true)
@@ -197,6 +199,14 @@ export function App() {
           </div>
         )}
         {error && <div className="error-banner"><span aria-hidden="true">!</span>{error}</div>}
+        {world && (
+          <StatisticsPanel
+            statistics={world.snapshot.statistics}
+            history={world.snapshot.history}
+            isOpen={isAnalyticsOpen}
+            onToggle={() => setIsAnalyticsOpen(open => !open)}
+          />
+        )}
       </main>
     </div>
   )

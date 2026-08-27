@@ -39,14 +39,14 @@ public sealed class ReproductionResolverTests
         var state = CreateState(mutationProb: 0.0f);
         var orgA = new OrganismState(Guid.NewGuid(), Species.Herbivore, new Genome(1.0f, 1.0f, 8.0f), 5.0f, 5.0f, generation: 1)
         {
-            AgeTicks = 150,
+            AgeTicks = 250,
             Needs = new OrganismNeeds(hunger: 100, thirst: 100, energy: 800),
             ReproductionCooldownTicks = 0
         };
 
         var orgB = new OrganismState(Guid.NewGuid(), Species.Herbivore, new Genome(2.0f, 2.0f, 12.0f), 5.2f, 5.2f, generation: 2)
         {
-            AgeTicks = 120,
+            AgeTicks = 220,
             Needs = new OrganismNeeds(hunger: 100, thirst: 100, energy: 750),
             ReproductionCooldownTicks = 0
         };
@@ -71,8 +71,8 @@ public sealed class ReproductionResolverTests
         Assert.Equal(1.5f, birth.Genome.Size, precision: 2);
         Assert.Equal(10.0f, birth.Genome.Vision, precision: 2);
 
-        Assert.Equal(650, orgA.Needs.Energy);
-        Assert.Equal(600, orgB.Needs.Energy);
+        Assert.Equal(600, orgA.Needs.Energy);
+        Assert.Equal(550, orgB.Needs.Energy);
         Assert.Equal(SurvivalRulesV4.MatingCooldownTicks, orgA.ReproductionCooldownTicks);
         Assert.Equal(SurvivalRulesV4.MatingCooldownTicks, orgB.ReproductionCooldownTicks);
         Assert.Equal(3, state.Organisms.Count);
@@ -84,17 +84,17 @@ public sealed class ReproductionResolverTests
         var state = CreateState();
         var orgA = new OrganismState(Guid.NewGuid(), Species.Herbivore, new Genome(1.0f), 5.0f, 5.0f)
         {
-            AgeTicks = 150,
+            AgeTicks = 250,
             Needs = new OrganismNeeds(energy: 800)
         };
         var orgB = new OrganismState(Guid.NewGuid(), Species.Herbivore, new Genome(1.0f), 5.1f, 5.0f)
         {
-            AgeTicks = 150,
+            AgeTicks = 250,
             Needs = new OrganismNeeds(energy: 800)
         };
         var orgC = new OrganismState(Guid.NewGuid(), Species.Herbivore, new Genome(1.0f), 5.2f, 5.0f)
         {
-            AgeTicks = 150,
+            AgeTicks = 250,
             Needs = new OrganismNeeds(energy: 800)
         };
 
@@ -124,11 +124,11 @@ public sealed class ReproductionResolverTests
         }
 
         var orgA = state.Organisms[0];
-        orgA.AgeTicks = 150;
+        orgA.AgeTicks = 250;
         orgA.Needs = new OrganismNeeds(energy: 800);
 
         var orgB = state.Organisms[1];
-        orgB.AgeTicks = 150;
+        orgB.AgeTicks = 250;
         orgB.Needs = new OrganismNeeds(energy: 800);
 
         var scored = new (OrganismState Organism, ActionIntent Intent)[]
@@ -148,12 +148,12 @@ public sealed class ReproductionResolverTests
         var state = CreateState(mutationProb: 1.0f, mutationStrength: 0.2f);
         var orgA = new OrganismState(Guid.NewGuid(), Species.Carnivore, new Genome(1.0f, 1.0f, 8.0f), 5.0f, 5.0f)
         {
-            AgeTicks = 150,
+            AgeTicks = 250,
             Needs = new OrganismNeeds(energy: 800)
         };
         var orgB = new OrganismState(Guid.NewGuid(), Species.Carnivore, new Genome(1.0f, 1.0f, 8.0f), 5.1f, 5.0f)
         {
-            AgeTicks = 150,
+            AgeTicks = 250,
             Needs = new OrganismNeeds(energy: 800)
         };
 

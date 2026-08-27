@@ -31,13 +31,17 @@ public sealed class SimulationSession
         lock (_gate)
         {
             var snapshot = _engine.Snapshot();
-            if (string.IsNullOrEmpty(_cachedFingerprint) || snapshot.Tick - _lastFingerprintTick >= 10 || !IsRunning)
+            if (string.IsNullOrEmpty(_cachedFingerprint) || snapshot.Tick - _lastFingerprintTick >= 100 || !IsRunning)
             {
                 _cachedFingerprint = SimulationStateFingerprint.Compute(GetState()).ToString();
                 _lastFingerprintTick = snapshot.Tick;
             }
             int herbivores = snapshot.Organisms.Count(item => item.Species == Species.Herbivore);
             int carnivores = snapshot.Organisms.Count(item => item.Species == Species.Carnivore);
+            var summary = _engine.Statistics.GetSummary(GetState());
+            var statsDto = EcosystemStatisticsSummaryDto.FromDomain(summary);
+            var historyDto = _engine.Statistics.History.Select(SimulationHistoryPointDto.FromDomain).ToArray();
+
             return new SimulationSnapshotResponse(snapshot.Tick, IsRunning, Speed, _cachedFingerprint, snapshot.Organisms.Count,
                 herbivores, carnivores,
                 snapshot.Organisms.GroupBy(item => item.Action.ToString()).ToDictionary(group => group.Key, group => group.Count()),
@@ -51,7 +55,9 @@ public sealed class SimulationSession
                     new GenomeDto(item.Genome.Speed, item.Genome.Size, item.Genome.Vision),
                     item.MotherId?.ToString(),
                     item.FatherId?.ToString(),
-                    item.Generation)).ToArray());
+                    item.Generation)).ToArray(),
+                statsDto,
+                historyDto);
         }
     }
     public SimulationStatusResponse Status() { var snapshot = CreateResponse(); return new SimulationStatusResponse(snapshot.Tick, snapshot.IsRunning, snapshot.Speed, snapshot.Fingerprint, snapshot.Population); }

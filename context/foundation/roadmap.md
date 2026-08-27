@@ -33,8 +33,8 @@ Wild Seed is an interactive 2D ecosystem simulation intended to feel like a livi
 | S-01 | configurable-procedural-world | visitor can configure world parameters and see a cohesive rendered procedural world | F-01 | US-01, FR-001, FR-002, FR-009 | done |
 | S-02 | deterministic-survival-loop | visitor can run, pause, accelerate, and observe a deterministic needs-driven survival loop | S-01 | US-01, FR-003, FR-004, FR-005, FR-008, FR-009 | done |
 | S-03 | predator-prey-dynamics | visitor can observe herbivores feeding and predators hunting while prey flee | S-02 | US-01, FR-006, FR-009 | done |
-| S-04 | inherited-evolution | visitor can observe reproduction, inherited genomes, mutation, and trait trade-offs | S-02 | US-01, FR-007, FR-009 | proposed |
-| S-05 | ecosystem-statistics | visitor can follow population, birth, death, lifespan, and average genome-trait statistics over time | S-03, S-04 | US-01, FR-010 | proposed |
+| S-04 | inherited-evolution | visitor can observe reproduction, inherited genomes, mutation, and trait trade-offs | S-02 | US-01, FR-007, FR-009 | done |
+| S-05 | ecosystem-statistics | visitor can follow population, birth, death, lifespan, and average genome-trait statistics over time | S-03, S-04 | US-01, FR-010 | done |
 | S-06 | organism-inspection | visitor can select an organism and inspect its state, action, genome, parents, and children | S-04 | US-01, FR-011 | proposed |
 | S-07 | limited-god-mode | visitor can perform limited interventions and observe the ecosystem's response | S-03, S-04 | US-01, FR-012 | proposed |
 
@@ -112,7 +112,7 @@ What's already in place in the codebase as of `2026-08-26` (auto-researched + us
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Sequencing inheritance after stable survival behavior makes population change meaningful without coupling its discovery to predator implementation.
-- **Status:** proposed
+- **Status:** done
 
 ### S-05: Follow ecosystem statistics
 
@@ -124,7 +124,7 @@ What's already in place in the codebase as of `2026-08-26` (auto-researched + us
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Building the complete statistics view after predation and inheritance exist ensures polished charts describe real ecosystem events rather than provisional signals.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: Inspect an organism and its family
 
@@ -158,10 +158,10 @@ What's already in place in the codebase as of `2026-08-26` (auto-researched + us
 | S-01 | configurable-procedural-world | Let visitors configure and generate a procedural world | done | Implemented & reviewed |
 | S-02 | deterministic-survival-loop | Let visitors run and observe a deterministic survival loop | done | Implemented & reviewed |
 | S-03 | predator-prey-dynamics | Let visitors observe predator-prey dynamics | done | Implemented & reviewed |
-| S-04 | inherited-evolution | Let visitors observe inherited evolution | yes | Run `/plan inherited-evolution` |
-| S-05 | ecosystem-statistics | Let visitors follow ecosystem statistics | no | Requires S-04 |
-| S-06 | organism-inspection | Let visitors inspect organisms and family relationships | no | Requires S-04 |
-| S-07 | limited-god-mode | Let visitors intervene through limited God Mode | no | Requires S-04 |
+| S-04 | inherited-evolution | Let visitors observe inherited evolution | done | Implemented & reviewed |
+| S-05 | ecosystem-statistics | Let visitors follow ecosystem statistics | done | Implemented & reviewed |
+| S-06 | organism-inspection | Let visitors inspect organisms and family relationships | yes | Run `/plan organism-inspection` |
+| S-07 | limited-god-mode | Let visitors intervene through limited God Mode | yes | Run `/plan limited-god-mode` |
 
 ## Open Roadmap Questions
 
@@ -184,3 +184,5 @@ What's already in place in the codebase as of `2026-08-26` (auto-researched + us
 - **S-01: visitor can configure world parameters and see a cohesive rendered procedural world** — Implemented 2026-08-27 → `context/changes/configurable-procedural-world/`. Lesson: —.
 - **S-02: visitor can run, pause, accelerate, and observe a deterministic needs-driven survival loop** — Implemented 2026-08-27 → `context/changes/deterministic-survival-loop/`. Lesson: —.
 - **S-03: visitor can observe herbivores feeding and predators hunting while prey flee** — Implemented 2026-08-27 → `context/changes/predator-prey-dynamics/`. Lesson: —.
+- **S-04: visitor can observe reproduction, inherited genomes, mutation, and trait trade-offs** — Implemented 2026-08-27 → `context/changes/inherited-evolution/`. Lesson: —.
+- **S-05: visitor can follow population, birth, death, lifespan, and average genome-trait statistics over time** — Implemented 2026-08-27 → `context/changes/ecosystem-statistics/`. Lesson: —.

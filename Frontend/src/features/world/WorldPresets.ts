@@ -20,8 +20,8 @@ export const WORLD_PRESETS: WorldPreset[] = [
       vegetationDensity: 0.65,
       initialHerbivores: 70,
       initialCarnivores: 12,
-      mutationProbability: 0.05,
-      mutationStrength: 0.1,
+      mutationProbability: 0.30,
+      mutationStrength: 0.25,
     },
   },
   {
@@ -36,8 +36,8 @@ export const WORLD_PRESETS: WorldPreset[] = [
       vegetationDensity: 0.7,
       initialHerbivores: 150,
       initialCarnivores: 30,
-      mutationProbability: 0.05,
-      mutationStrength: 0.1,
+      mutationProbability: 0.30,
+      mutationStrength: 0.25,
     },
   },
   {
@@ -52,8 +52,8 @@ export const WORLD_PRESETS: WorldPreset[] = [
       vegetationDensity: 0.2,
       initialHerbivores: 40,
       initialCarnivores: 8,
-      mutationProbability: 0.08,
-      mutationStrength: 0.2,
+      mutationProbability: 0.35,
+      mutationStrength: 0.30,
     },
   },
   {
@@ -68,8 +68,8 @@ export const WORLD_PRESETS: WorldPreset[] = [
       vegetationDensity: 0.95,
       initialHerbivores: 120,
       initialCarnivores: 25,
-      mutationProbability: 0.05,
-      mutationStrength: 0.1,
+      mutationProbability: 0.30,
+      mutationStrength: 0.25,
     },
   },
 ]
