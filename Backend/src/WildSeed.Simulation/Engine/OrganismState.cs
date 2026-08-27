@@ -40,4 +40,5 @@ public sealed class OrganismState
     public Guid? FatherId { get; }
     public int Generation { get; }
     public int ReproductionCooldownTicks { get; set; }
+    public int StuckTicks { get; set; }
 }

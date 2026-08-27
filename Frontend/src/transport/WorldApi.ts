@@ -67,6 +67,46 @@ export interface OrganismBornEvent {
   genome: Genome
 }
 
+export interface TraitStatistics {
+  averageSpeed: number
+  averageSize: number
+  averageVision: number
+}
+
+export interface MortalityStatistics {
+  totalDeaths: number
+  deathsByCause: Record<string, number>
+  averageLifespanTicks: number
+  maxLifespanTicks: number
+  herbivoreAverageLifespanTicks: number
+  carnivoreAverageLifespanTicks: number
+}
+
+export interface SimulationHistoryPoint {
+  tick: number
+  totalPopulation: number
+  herbivoreCount: number
+  carnivoreCount: number
+  birthsThisWindow: number
+  deathsThisWindow: number
+  herbivoreTraits: TraitStatistics
+  carnivoreTraits: TraitStatistics
+}
+
+export interface EcosystemStatisticsSummary {
+  totalPopulation: number
+  herbivores: number
+  carnivores: number
+  overallTraits: TraitStatistics
+  herbivoreTraits: TraitStatistics
+  carnivoreTraits: TraitStatistics
+  mortality: MortalityStatistics
+  totalBirths: number
+  totalDeaths: number
+  windowedBirths: number
+  windowedDeaths: number
+}
+
 export interface SimulationSnapshot {
   tick: number
   isRunning: boolean
@@ -78,6 +118,8 @@ export interface SimulationSnapshot {
   actions: Record<string, number>
   deaths: Record<string, number>
   organisms: RuntimeOrganism[]
+  statistics?: EcosystemStatisticsSummary
+  history?: SimulationHistoryPoint[]
 }
 
 export interface GeneratedWorld {

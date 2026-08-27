@@ -9,6 +9,11 @@ public sealed class ActionScorer
 {
     public ActionIntent Score(OrganismState organism, PerceptionResult perception)
     {
+        if (organism.StuckTicks >= 5)
+        {
+            return new ActionIntent(organism.Id, OrganismAction.Explore, null, null);
+        }
+
         var candidates = new List<(OrganismAction Action, int Score, (int X, int Y)? Target, Guid? TargetOrganismId)>
         {
             (OrganismAction.Explore, 1, null, null)
@@ -46,20 +51,24 @@ public sealed class ActionScorer
         }
         else if (organism.Species == Species.Carnivore)
         {
-            if (organism.Needs.Hunger >= SurvivalRulesV3.ActionNeedThreshold && perception.NearestPrey is { } prey && perception.PreyId is { } preyId)
+            if (organism.Needs.Hunger >= SurvivalRulesV4.ActionNeedThreshold && perception.NearestPrey is { } prey && perception.PreyId is { } preyId)
             {
                 float dx = prey.X - organism.X;
                 float dy = prey.Y - organism.Y;
                 float distSq = dx * dx + dy * dy;
                 var preyTile = ((int)MathF.Floor(prey.X), (int)MathF.Floor(prey.Y));
 
-                if (distSq <= SurvivalRulesV3.AttackRangeSquared || IsAt(organism, preyTile))
+                if (distSq <= SurvivalRulesV4.AttackRangeSquared || IsAt(organism, preyTile))
                 {
                     candidates.Add((OrganismAction.Attack, organism.Needs.Hunger * 3, preyTile, preyId));
                 }
-                else
+                else if (distSq <= SurvivalRulesV4.HuntPerceptionRadius * SurvivalRulesV4.HuntPerceptionRadius)
                 {
                     candidates.Add((OrganismAction.Hunt, organism.Needs.Hunger * 2, preyTile, preyId));
+                }
+                else
+                {
+                    candidates.Add((OrganismAction.SeekFood, organism.Needs.Hunger * 2, preyTile, preyId));
                 }
             }
         }

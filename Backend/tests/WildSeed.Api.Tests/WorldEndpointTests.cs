@@ -157,4 +157,33 @@ public sealed class WorldEndpointTests : IClassFixture<WebApplicationFactory<Pro
         Assert.Equal(dadId.ToString(), org.FatherId);
         Assert.Equal(3, org.Generation);
     }
+
+    [Fact]
+    public void SimulationSession_ReturnsSnapshotWithEcosystemStatistics()
+    {
+        var tiles = new Domain.Terrain.Tile[64, 64];
+        for (int y = 0; y < 64; y++)
+        for (int x = 0; x < 64; x++)
+            tiles[x, y] = new Domain.Terrain.Tile(x, y, Domain.Terrain.TerrainType.Grass, 0.0f);
+
+        var config = new Domain.World.WorldConfiguration(42, 64, 64, 2, 1, 0.0f, 0.1f, 0.05f, 0.1f);
+        var world = new Domain.World.WorldMap(config, tiles,
+        [
+            new Domain.Organisms.Organism(Guid.NewGuid(), Domain.Organisms.Species.Herbivore, new Domain.Organisms.Genome(1.5f, 1.2f, 10.0f), 10.0f, 10.0f),
+            new Domain.Organisms.Organism(Guid.NewGuid(), Domain.Organisms.Species.Herbivore, new Domain.Organisms.Genome(1.1f, 0.8f, 8.0f), 12.0f, 12.0f),
+            new Domain.Organisms.Organism(Guid.NewGuid(), Domain.Organisms.Species.Carnivore, new Domain.Organisms.Genome(2.0f, 1.5f, 12.0f), 20.0f, 20.0f)
+        ]);
+
+        var state = WildSeed.Simulation.Engine.SimulationStateFactory.Create(world);
+        var session = new WildSeed.Api.SimulationHosting.SimulationSession("test-token", state);
+
+        var response = session.CreateResponse();
+        Assert.NotNull(response.Statistics);
+        Assert.Equal(3, response.Statistics.TotalPopulation);
+        Assert.Equal(2, response.Statistics.Herbivores);
+        Assert.Equal(1, response.Statistics.Carnivores);
+        Assert.Equal(1.3f, response.Statistics.HerbivoreTraits.AverageSpeed, precision: 2);
+        Assert.Equal(2.0f, response.Statistics.CarnivoreTraits.AverageSpeed, precision: 2);
+        Assert.NotNull(response.History);
+    }
 }

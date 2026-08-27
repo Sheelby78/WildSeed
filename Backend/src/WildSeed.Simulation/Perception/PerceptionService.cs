@@ -15,8 +15,8 @@ public sealed class PerceptionService
         float foodDistance = float.PositiveInfinity;
         float waterDistance = float.PositiveInfinity;
 
-        bool needFood = organism.Species == Species.Herbivore && organism.Needs.Hunger >= SurvivalRulesV3.ActionNeedThreshold;
-        bool needWater = organism.Needs.Thirst >= SurvivalRulesV3.ActionNeedThreshold;
+        bool needFood = organism.Species == Species.Herbivore && organism.Needs.Hunger >= SurvivalRulesV4.ActionNeedThreshold;
+        bool needWater = organism.Needs.Thirst >= SurvivalRulesV4.ActionNeedThreshold;
 
         if (needFood || needWater)
         {
@@ -60,7 +60,8 @@ public sealed class PerceptionService
         {
             if (organism.Species == Species.Herbivore)
             {
-                var threat = spatialGrid.FindNearest(organism.X, organism.Y, organism.Genome.Vision, Species.Carnivore, state.Organisms);
+                float threatVisionRadius = Math.Min(organism.Genome.Vision, (float)SurvivalRulesV4.DangerPerceptionRadius);
+                var threat = spatialGrid.FindNearest(organism.X, organism.Y, threatVisionRadius, Species.Carnivore, state.Organisms);
                 if (threat is not null)
                 {
                     nearestThreat = (threat.X, threat.Y);
@@ -68,11 +69,22 @@ public sealed class PerceptionService
             }
             else if (organism.Species == Species.Carnivore)
             {
-                var prey = spatialGrid.FindNearest(organism.X, organism.Y, organism.Genome.Vision, Species.Herbivore, state.Organisms);
+                float huntVisionRadius = Math.Max(organism.Genome.Vision, (float)SurvivalRulesV4.HuntPerceptionRadius);
+                var prey = spatialGrid.FindNearest(organism.X, organism.Y, huntVisionRadius, Species.Herbivore, state.Organisms);
                 if (prey is not null)
                 {
                     nearestPrey = (prey.X, prey.Y);
                     preyId = prey.Id;
+                }
+                else if (organism.Needs.Hunger >= SurvivalRulesV4.ActionNeedThreshold)
+                {
+                    // Long-range scent: track closest prey across entire map to navigate back to herds
+                    var distantPrey = spatialGrid.FindNearest(organism.X, organism.Y, float.PositiveInfinity, Species.Herbivore, state.Organisms);
+                    if (distantPrey is not null)
+                    {
+                        nearestPrey = (distantPrey.X, distantPrey.Y);
+                        preyId = distantPrey.Id;
+                    }
                 }
             }
 
@@ -82,7 +94,17 @@ public sealed class PerceptionService
                 organism.Needs.Hunger < SurvivalRulesV4.CriticalNeed &&
                 organism.Needs.Thirst < SurvivalRulesV4.CriticalNeed)
             {
-                var mate = spatialGrid.FindNearestEligibleMate(organism.X, organism.Y, organism.Genome.Vision, organism.Species, organism.Id, state.Organisms);
+                float mateVisionRadius = organism.Species == Species.Carnivore
+                    ? Math.Max(organism.Genome.Vision, (float)SurvivalRulesV4.HuntPerceptionRadius)
+                    : organism.Genome.Vision;
+                var mate = spatialGrid.FindNearestEligibleMate(organism.X, organism.Y, mateVisionRadius, organism.Species, organism.Id, state.Organisms);
+
+                if (mate is null && organism.Species == Species.Carnivore)
+                {
+                    // Long-range scent for solitary carnivores seeking mates
+                    mate = spatialGrid.FindNearestEligibleMate(organism.X, organism.Y, float.PositiveInfinity, organism.Species, organism.Id, state.Organisms);
+                }
+
                 if (mate is not null)
                 {
                     nearestMate = (mate.X, mate.Y);
